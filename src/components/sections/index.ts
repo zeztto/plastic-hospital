@@ -1,0 +1,8 @@
+export { Hero } from './Hero'
+export { Services } from './Services'
+export { Doctors } from './Doctors'
+export { BeforeAfter } from './BeforeAfter'
+export { Reviews } from './Reviews'
+export { Location } from './Location'
+export { Booking } from './Booking'
+export { FAQ } from './FAQ'
