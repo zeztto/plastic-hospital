@@ -10,12 +10,16 @@ import {
   Menu,
   X,
   Home,
+  Users,
+  FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { label: '대시보드', href: '/admin', icon: LayoutDashboard },
   { label: '예약 관리', href: '/admin/bookings', icon: CalendarDays },
+  { label: '환자 관리', href: '/admin/patients', icon: Users },
+  { label: '진료 기록', href: '/admin/records', icon: FileText },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
