@@ -734,7 +734,7 @@ export function PatientChart() {
           환자를 찾을 수 없습니다.
         </p>
         <Button variant="outline" asChild>
-          <Link to="/admin/patients">환자 목록으로</Link>
+          <Link to="/emr/patients">환자 목록으로</Link>
         </Button>
       </div>
     )
@@ -743,7 +743,7 @@ export function PatientChart() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/patients')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/emr/patients')}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex-1">

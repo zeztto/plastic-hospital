@@ -104,7 +104,7 @@ export function RecordsList() {
                       <TableCell>{record.date}</TableCell>
                       <TableCell>
                         <Link
-                          to={`/admin/patients/${record.patientId}`}
+                          to={`/emr/patients/${record.patientId}`}
                           className="font-medium text-primary hover:underline"
                         >
                           {record.patientName}

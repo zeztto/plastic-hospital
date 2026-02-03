@@ -2,44 +2,50 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { useAdminAuth } from '@/contexts/AdminAuthContext'
+import { useEMRAuth } from '@/contexts/EMRAuthContext'
 import {
   LayoutDashboard,
-  CalendarDays,
+  Users,
+  FileText,
   LogOut,
   Menu,
   X,
   Home,
+  ShieldCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { label: '대시보드', href: '/admin', icon: LayoutDashboard },
-  { label: '예약 관리', href: '/admin/bookings', icon: CalendarDays },
+  { label: '대시보드', href: '/emr', icon: LayoutDashboard },
+  { label: '환자 관리', href: '/emr/patients', icon: Users },
+  { label: '진료 기록', href: '/emr/records', icon: FileText },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { logout } = useAdminAuth()
+  const { logout } = useEMRAuth()
 
   const handleLogout = () => {
     logout()
-    navigate('/admin/login')
+    navigate('/emr/login')
   }
 
   return (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b">
-        <h1 className="text-lg font-bold text-primary">뷰티플 성형외과</h1>
-        <p className="text-sm text-muted-foreground">예약 관리 시스템</p>
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+          <h1 className="text-lg font-bold text-primary">뷰티플 EMR</h1>
+        </div>
+        <p className="text-sm text-muted-foreground">전자의무기록 시스템</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
           const isActive =
-            item.href === '/admin'
-              ? location.pathname === '/admin'
+            item.href === '/emr'
+              ? location.pathname === '/emr'
               : location.pathname.startsWith(item.href)
           return (
             <Link
@@ -80,7 +86,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
-export function AdminLayout() {
+export function EMRLayout() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   return (
@@ -90,7 +96,10 @@ export function AdminLayout() {
       </aside>
 
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b px-4 h-14 flex items-center justify-between">
-        <span className="font-bold text-primary">뷰티플 관리</span>
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-primary" />
+          <span className="font-bold text-primary">뷰티플 EMR</span>
+        </div>
         <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">

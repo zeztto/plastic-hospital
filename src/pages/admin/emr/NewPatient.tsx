@@ -49,14 +49,14 @@ export function NewPatient() {
       medicalHistory,
     })
 
-    navigate(`/admin/patients/${patient.id}`)
+    navigate(`/emr/patients/${patient.id}`)
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/admin/patients">
+          <Link to="/emr/patients">
             <ArrowLeft className="w-5 h-5" />
           </Link>
         </Button>
@@ -193,7 +193,7 @@ export function NewPatient() {
                 환자 등록
               </Button>
               <Button type="button" variant="outline" asChild>
-                <Link to="/admin/patients">취소</Link>
+                <Link to="/emr/patients">취소</Link>
               </Button>
             </div>
           </form>

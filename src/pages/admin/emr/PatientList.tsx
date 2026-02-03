@@ -42,7 +42,7 @@ export function PatientList() {
           </p>
         </div>
         <Button asChild>
-          <Link to="/admin/patients/new">
+          <Link to="/emr/patients/new">
             <Plus className="w-4 h-4 mr-2" />
             신규 환자 등록
           </Link>
@@ -108,7 +108,7 @@ export function PatientList() {
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/admin/patients/${patient.id}`}>
+                          <Link to={`/emr/patients/${patient.id}`}>
                             <Eye className="w-4 h-4 mr-1" />
                             보기
                           </Link>
