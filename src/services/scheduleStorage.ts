@@ -103,6 +103,31 @@ export const scheduleStorage = {
       },
     ]
 
-    save(demo)
+    const tuesday = new Date(monday)
+    tuesday.setDate(monday.getDate() + 1)
+    const tuesdayStr = tuesday.toISOString().split('T')[0]
+
+    const thursday = new Date(monday)
+    thursday.setDate(monday.getDate() + 3)
+    const thursdayStr = thursday.toISOString().split('T')[0]
+
+    const nextMonday = new Date(monday)
+    nextMonday.setDate(monday.getDate() + 7)
+    const nextMondayStr = nextMonday.toISOString().split('T')[0]
+
+    const nextWednesday = new Date(monday)
+    nextWednesday.setDate(monday.getDate() + 9)
+    const nextWednesdayStr = nextWednesday.toISOString().split('T')[0]
+
+    const xBlocks: TimeBlock[] = [
+      { id: 'TB-DEMO-004', doctorId: 'doc-2', date: mondayStr, startTime: '12:00', endTime: '13:00', reason: '점심시간', createdAt: new Date().toISOString() },
+      { id: 'TB-DEMO-005', doctorId: 'doc-1', date: tuesdayStr, startTime: '14:00', endTime: '16:00', reason: '외부 세미나', createdAt: new Date().toISOString() },
+      { id: 'TB-DEMO-006', doctorId: 'doc-3', date: wednesdayStr, startTime: '12:00', endTime: '13:00', reason: '점심시간', createdAt: new Date().toISOString() },
+      { id: 'TB-DEMO-007', doctorId: 'doc-4', date: thursdayStr, startTime: '09:00', endTime: '11:00', reason: '원내 교육', createdAt: new Date().toISOString() },
+      { id: 'TB-DEMO-008', doctorId: 'doc-2', date: fridayStr, startTime: '14:00', endTime: '18:00', reason: '학회 참석', createdAt: new Date().toISOString() },
+      { id: 'TB-DEMO-009', doctorId: 'doc-1', date: nextMondayStr, startTime: '09:00', endTime: '12:00', reason: '장비 점검', createdAt: new Date().toISOString() },
+      { id: 'TB-DEMO-010', doctorId: 'doc-4', date: nextWednesdayStr, startTime: '15:00', endTime: '18:00', reason: '개인 사유', createdAt: new Date().toISOString() },
+    ]
+    save([...demo, ...xBlocks])
   },
 }

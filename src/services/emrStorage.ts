@@ -265,7 +265,23 @@ export const emrStorage = {
         registeredAt: '2026-01-20T09:00:00.000Z',
       },
     ]
-    persist(PATIENTS_KEY, patients)
+    const pN = ['김소연','박하나','이지현','최서윤','정다은','한예진','오수빈','강유진','윤채원','임서진','송민지','배지영','조은서','신하영','장수정','문예은','양서현','권다인','류하은','남지우','홍수아','전예나','고은별','서하늘','안지민','유다현','노서윤','황예림','방지혜','차서연']
+    const pP = ['010-1111-2222','010-2222-3333','010-3333-4444','010-4444-5555','010-5555-6666','010-6666-7777','010-7777-8888','010-8888-9999','010-1234-1111','010-2345-2222','010-3456-3333','010-4567-4444','010-5678-5555','010-6789-6666','010-7890-7777','010-8901-8888','010-9012-9999','010-1122-3344','010-2233-4455','010-3344-5566','010-4455-6677','010-5566-7788','010-6677-8899','010-7788-9900','010-8899-0011','010-9900-1122','010-1010-2020','010-2020-3030','010-3030-4040','010-4040-5050']
+    const pBt = ['A+','B+','O+','AB+','A-','B-','O-','AB-']
+    const pAl = ['페니실린','아스피린','라텍스','세팔로스포린','리도카인','설파제','NSAIDs','요오드']
+    const pMh = ['특이사항 없음','고혈압 가족력','당뇨 전단계','갑상선 기능저하증','아토피 피부염','비중격만곡증 기왕력','빈혈','천식','편두통','위장장애']
+    const pAd = ['서울시 강남구 테헤란로 45','서울시 서초구 서초대로 120','서울시 송파구 올림픽로 300','서울시 마포구 월드컵로 55','서울시 용산구 이태원로 200','서울시 강동구 천호대로 150','서울시 영등포구 여의대방로 100','서울시 성북구 보문로 80','서울시 관악구 관악로 60','서울시 중구 을지로 30']
+    const xPatients: Patient[] = pN.map((name, i) => ({
+      id: `PT-DEMO-${String(i + 9).padStart(3, '0')}`,
+      chartNumber: `C${String(i + 9).padStart(5, '0')}`,
+      name, birthDate: `${1985 + (i % 16)}-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + ((i * 3) % 28)).padStart(2, '0')}`,
+      gender: 'female' as const, phone: pP[i],
+      address: pAd[i % pAd.length], bloodType: pBt[i % pBt.length],
+      allergies: i % 3 === 0 ? [pAl[i % pAl.length]] : [],
+      medicalHistory: pMh[i % pMh.length],
+      registeredAt: new Date(2025, 9 + Math.floor(i / 8), 1 + (i % 28)).toISOString(),
+    }))
+    persist(PATIENTS_KEY, [...patients, ...xPatients])
 
     const records: MedicalRecord[] = [
       {
@@ -332,7 +348,48 @@ export const emrStorage = {
         createdAt: '2026-02-03T09:30:00.000Z',
       },
     ]
-    persist(RECORDS_KEY, records)
+    const rDr = ['김뷰티','이아름','박성형','최미소']
+    const rPr = ['눈성형','코성형','안면윤곽','리프팅','가슴성형','지방흡입','피부시술','쁘띠성형']
+    const rCc: Record<string, string[]> = {
+      '눈성형': ['쌍꺼풀 수술 상담','눈매교정 희망','눈밑 지방 제거 상담','눈 재수술 상담'],
+      '코성형': ['콧대를 높이고 싶음','매부리코 교정 상담','코끝 성형 상담','코 재수술 상담'],
+      '안면윤곽': ['광대뼈 축소 상담','사각턱 교정 상담','V라인 턱 성형 상담','이마 성형 상담'],
+      '리프팅': ['실리프팅 상담','안면 처짐 개선 희망','볼처짐 리프팅 상담','이중턱 리프팅 상담'],
+      '가슴성형': ['가슴 확대 상담','가슴 축소 상담','가슴 보형물 교체 상담','가슴 재건 상담'],
+      '지방흡입': ['복부 지방흡입 상담','허벅지 지방흡입 상담','팔뚝 지방흡입 상담','턱밑 지방흡입 상담'],
+      '피부시술': ['여드름 흉터 치료 상담','기미 제거 상담','모공 축소 상담','레이저 토닝 상담'],
+      '쁘띠성형': ['보톡스 시술 희망','필러 시술 상담','물광주사 상담','입술 필러 상담'],
+    }
+    const rDg: Record<string, [string, string]> = {
+      '눈성형': ['안검하수', 'H02.3'], '코성형': ['코의 후천성 변형', 'M95.0'],
+      '안면윤곽': ['두부의 기타 후천성 변형', 'M95.2'], '리프팅': ['피부의 노인성 변화', 'L57.4'],
+      '가슴성형': ['미용목적의 성형수술', 'Z41.1'], '지방흡입': ['미용목적의 성형수술', 'Z41.1'],
+      '피부시술': ['피부의 기타 변화', 'L98.8'], '쁘띠성형': ['미용목적의 성형수술', 'Z41.1'],
+    }
+    const rTp: Record<string, string> = {
+      '눈성형': '자연유착 쌍꺼풀 수술 권고', '코성형': '실리콘 보형물 + 자가연골 코끝 성형 계획',
+      '안면윤곽': '광대뼈 축소술 시행 예정', '리프팅': 'MINT 리프팅 실 60개 시술 계획',
+      '가슴성형': '가슴 보형물 삽입술 계획', '지방흡입': '복부 지방흡입 시술 계획',
+      '피부시술': '레이저 토닝 5회 시술 계획', '쁘띠성형': '보톡스 50유닛 시술 계획',
+    }
+    const xRecords: MedicalRecord[] = pN.map((_, i) => {
+      const proc = rPr[i % rPr.length]
+      const complaints = rCc[proc]
+      const [dg, dc] = rDg[proc]
+      return {
+        id: `MR-DEMO-${String(i + 8).padStart(3, '0')}`,
+        patientId: `PT-DEMO-${String(i + 9).padStart(3, '0')}`,
+        date: new Date(2025, 10 + Math.floor(i / 10), 5 + (i % 25)).toISOString().split('T')[0],
+        doctorName: rDr[i % rDr.length],
+        chiefComplaint: complaints[i % complaints.length],
+        diagnosis: dg, diagnosisCode: dc,
+        vitalSigns: { bloodPressure: `${110 + (i % 25)}/${70 + (i % 18)}`, pulse: 64 + (i % 24), temperature: +(36.2 + (i % 7) * 0.1).toFixed(1), weight: 48 + (i % 35), height: 155 + (i % 27) },
+        treatmentPlan: rTp[proc],
+        notes: `${complaints[i % complaints.length]} 소견. 검사 완료. 시술 일정 조율 예정.`,
+        createdAt: new Date(2025, 10 + Math.floor(i / 10), 5 + (i % 25), 10, 0).toISOString(),
+      }
+    })
+    persist(RECORDS_KEY, [...records, ...xRecords])
 
     const procedures: ProcedureRecord[] = [
       {
@@ -376,7 +433,43 @@ export const emrStorage = {
         status: 'scheduled', createdAt: '2026-02-01T11:00:00.000Z',
       },
     ]
-    persist(PROCEDURES_KEY, procedures)
+    const prNm: Record<string, string[]> = {
+      '눈성형': ['자연유착 쌍꺼풀 수술','눈매교정술','하안검 성형술','눈밑 지방재배치'],
+      '코성형': ['코성형 (실리콘+자가연골)','매부리코 교정술','코끝 성형술','비중격 교정술'],
+      '안면윤곽': ['광대뼈 축소술','사각턱 축소술','V라인 턱끝 성형','이마 보형물 삽입'],
+      '리프팅': ['MINT 실리프팅','울쎄라 리프팅','HIFU 리프팅','안면거상술'],
+      '가슴성형': ['가슴 보형물 삽입술','지방이식 가슴확대','가슴 축소술','보형물 교체술'],
+      '지방흡입': ['복부 지방흡입','허벅지 지방흡입','팔뚝 지방흡입','턱밑 지방흡입'],
+      '피부시술': ['프락셀 레이저','CO2 레이저','IPL 시술','레이저 토닝'],
+      '쁘띠성형': ['보톡스 시술 (이마+미간)','히알루론산 필러','물광주사','스킨보톡스'],
+    }
+    const prAn: Record<string, string> = {
+      '눈성형':'수면마취','코성형':'전신마취','안면윤곽':'전신마취','리프팅':'국소마취',
+      '가슴성형':'전신마취','지방흡입':'수면마취','피부시술':'해당없음','쁘띠성형':'해당없음',
+    }
+    const prDu: Record<string, string> = {
+      '눈성형':'40분','코성형':'90분','안면윤곽':'120분','리프팅':'45분',
+      '가슴성형':'100분','지방흡입':'60분','피부시술':'20분','쁘띠성형':'15분',
+    }
+    const prSt: ProcedureStatus[] = ['completed','scheduled','scheduled','completed','scheduled','completed','scheduled','scheduled','completed','cancelled']
+    const xProcs: ProcedureRecord[] = Array.from({ length: 20 }, (_, i) => {
+      const proc = rPr[i % rPr.length]
+      const names = prNm[proc]
+      return {
+        id: `PR-DEMO-${String(i + 6).padStart(3, '0')}`,
+        patientId: `PT-DEMO-${String(i + 9).padStart(3, '0')}`,
+        medicalRecordId: `MR-DEMO-${String(i + 8).padStart(3, '0')}`,
+        date: new Date(2025, 10 + Math.floor(i / 8), 12 + (i % 20)).toISOString().split('T')[0],
+        procedureName: names[i % names.length],
+        doctor: rDr[i % rDr.length], anesthesiaType: prAn[proc], duration: prDu[proc],
+        details: `${names[i % names.length]} 시행. 정상 경과.`,
+        complications: i % 5 === 0 ? '경미한 부종' : '없음',
+        postOpInstructions: proc === '쁘띠성형' ? '4시간 동안 눕지 말 것' : proc === '피부시술' ? '자외선 차단제 필수' : '처방약 복용, 격한 운동 2주 자제',
+        status: prSt[i % prSt.length],
+        createdAt: new Date(2025, 10 + Math.floor(i / 8), 12 + (i % 20), 10, 0).toISOString(),
+      }
+    })
+    persist(PROCEDURES_KEY, [...procedures, ...xProcs])
 
     const prescriptions: Prescription[] = [
       {
@@ -410,6 +503,34 @@ export const emrStorage = {
         createdAt: '2026-01-15T11:30:00.000Z',
       },
     ]
-    persist(PRESCRIPTIONS_KEY, prescriptions)
+    const rxMeds: Array<Array<{ name: string; dosage: string; frequency: string; duration: string; instructions: string }>> = [
+      [{ name: '세프라딘 500mg', dosage: '500mg', frequency: '1일 3회', duration: '5일', instructions: '식후 30분 복용' }, { name: '이부프로펜 400mg', dosage: '400mg', frequency: '1일 3회', duration: '3일', instructions: '통증 시 식후 복용' }, { name: '레바미피드 100mg', dosage: '100mg', frequency: '1일 3회', duration: '5일', instructions: '위장보호제, 식전 복용' }],
+      [{ name: '아목시실린 500mg', dosage: '500mg', frequency: '1일 3회', duration: '7일', instructions: '식후 30분 복용' }, { name: '아세트아미노펜 500mg', dosage: '500mg', frequency: '1일 3회', duration: '5일', instructions: '통증 시 복용' }],
+      [{ name: '클라리스로마이신 250mg', dosage: '250mg', frequency: '1일 2회', duration: '7일', instructions: '식후 복용' }, { name: '판토프라졸 40mg', dosage: '40mg', frequency: '1일 1회', duration: '14일', instructions: '아침 식전 복용' }, { name: '아르니카 연고', dosage: '적당량', frequency: '1일 2회', duration: '7일', instructions: '멍 부위 도포' }],
+      [{ name: '트라마돌 50mg', dosage: '50mg', frequency: '1일 2회', duration: '3일', instructions: '심한 통증 시 복용' }, { name: '레바미피드 100mg', dosage: '100mg', frequency: '1일 3회', duration: '5일', instructions: '위장보호제' }],
+      [{ name: '비타민C 1000mg', dosage: '1000mg', frequency: '1일 1회', duration: '30일', instructions: '아침 식후 복용' }, { name: '히루도이드 겔', dosage: '적당량', frequency: '1일 2회', duration: '14일', instructions: '흉터 부위 도포' }, { name: '콜라겐 보충제', dosage: '1포', frequency: '1일 1회', duration: '30일', instructions: '아침 공복 복용' }],
+      [{ name: '무피로신 연고', dosage: '적당량', frequency: '1일 3회', duration: '7일', instructions: '상처 부위 도포' }, { name: '이부프로펜 400mg', dosage: '400mg', frequency: '1일 3회', duration: '5일', instructions: '식후 복용' }],
+      [{ name: '세프라딘 500mg', dosage: '500mg', frequency: '1일 3회', duration: '5일', instructions: '식후 복용' }, { name: '푸시딘 연고', dosage: '적당량', frequency: '1일 2회', duration: '10일', instructions: '절개 부위 도포' }, { name: '판토프라졸 40mg', dosage: '40mg', frequency: '1일 1회', duration: '7일', instructions: '아침 식전 복용' }, { name: '아세트아미노펜 500mg', dosage: '500mg', frequency: '1일 3회', duration: '3일', instructions: '통증 시 복용' }],
+      [{ name: '아르니카 연고', dosage: '적당량', frequency: '1일 2회', duration: '5일', instructions: '멍 부위 도포' }],
+      [{ name: '아목시실린 500mg', dosage: '500mg', frequency: '1일 3회', duration: '7일', instructions: '식후 복용' }, { name: '트라마돌 50mg', dosage: '50mg', frequency: '1일 2회', duration: '5일', instructions: '통증 시 복용' }, { name: '레바미피드 100mg', dosage: '100mg', frequency: '1일 3회', duration: '7일', instructions: '위장보호제' }],
+      [{ name: '비타민C 1000mg', dosage: '1000mg', frequency: '1일 1회', duration: '30일', instructions: '아침 식후 복용' }, { name: '히루도이드 겔', dosage: '적당량', frequency: '1일 2회', duration: '14일', instructions: '흉터 부위 도포' }],
+      [{ name: '클라리스로마이신 250mg', dosage: '250mg', frequency: '1일 2회', duration: '5일', instructions: '식후 복용' }, { name: '이부프로펜 400mg', dosage: '400mg', frequency: '1일 3회', duration: '3일', instructions: '식후 복용' }, { name: '무피로신 연고', dosage: '적당량', frequency: '1일 3회', duration: '7일', instructions: '상처 부위 도포' }],
+      [{ name: '아세트아미노펜 500mg', dosage: '500mg', frequency: '1일 3회', duration: '5일', instructions: '통증 시 복용' }, { name: '판토프라졸 40mg', dosage: '40mg', frequency: '1일 1회', duration: '7일', instructions: '식전 복용' }],
+      [{ name: '세프라딘 500mg', dosage: '500mg', frequency: '1일 3회', duration: '7일', instructions: '식후 복용' }, { name: '푸시딘 연고', dosage: '적당량', frequency: '1일 2회', duration: '14일', instructions: '절개 부위 도포' }, { name: '비타민C 1000mg', dosage: '1000mg', frequency: '1일 1회', duration: '30일', instructions: '회복 촉진' }],
+      [{ name: '아르니카 연고', dosage: '적당량', frequency: '1일 2회', duration: '5일', instructions: '멍 부위 도포' }, { name: '콜라겐 보충제', dosage: '1포', frequency: '1일 1회', duration: '30일', instructions: '피부 회복' }],
+      [{ name: '아목시실린 500mg', dosage: '500mg', frequency: '1일 3회', duration: '5일', instructions: '식후 복용' }, { name: '이부프로펜 400mg', dosage: '400mg', frequency: '1일 3회', duration: '3일', instructions: '통증 시 식후 복용' }, { name: '레바미피드 100mg', dosage: '100mg', frequency: '1일 3회', duration: '5일', instructions: '위장보호제' }, { name: '히루도이드 겔', dosage: '적당량', frequency: '1일 2회', duration: '14일', instructions: '흉터 관리' }],
+    ]
+    const rxNotes = ['수술 후 감염 예방 및 통증 관리 목적 처방.','항생제 및 진통제 처방. 통증 심할 시 트라마돌 추가 가능.','시술 후 회복 촉진 및 멍 관리 목적 처방.','통증 관리 목적 처방. 위장 장애 시 레바미피드 병용.','수술 후 회복 촉진, 흉터 관리 및 영양 보충 목적.','상처 부위 감염 예방 및 통증 관리.','절개 수술 후 항생제, 연고, 진통제 복합 처방.','쁘띠 시술 후 멍 관리 목적 최소 처방.','전신마취 수술 후 항생제, 진통제, 위장보호제 처방.','경과 관찰 후 회복 보조 처방.','감염 예방 및 통증 관리 복합 처방.','경미한 시술 후 진통제 및 위장보호제 처방.','절개 수술 후 항생제, 연고, 비타민 복합 처방.','비수술 시술 후 멍 관리 및 피부 회복 처방.','수술 후 감염 예방, 통증 관리, 흉터 관리 복합 처방.']
+    const xPrescriptions: Prescription[] = Array.from({ length: 15 }, (_, i) => ({
+      id: `RX-DEMO-${String(i + 4).padStart(3, '0')}`,
+      patientId: `PT-DEMO-${String(i + 9).padStart(3, '0')}`,
+      medicalRecordId: `MR-DEMO-${String(i + 8).padStart(3, '0')}`,
+      date: new Date(2025, 10 + Math.floor(i / 6), 15 + (i % 20)).toISOString().split('T')[0],
+      doctorName: rDr[i % rDr.length],
+      medications: rxMeds[i],
+      notes: rxNotes[i],
+      createdAt: new Date(2025, 10 + Math.floor(i / 6), 15 + (i % 20), 11, 0).toISOString(),
+    }))
+    persist(PRESCRIPTIONS_KEY, [...prescriptions, ...xPrescriptions])
   },
 }

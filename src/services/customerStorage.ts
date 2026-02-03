@@ -378,6 +378,33 @@ export const customerStorage = {
       jung.tags = ['안면윤곽', '수술예정']
     }
 
+    const kimSoyeon = customers.find((c) => c.phone === '010-1111-2222')
+    if (kimSoyeon) {
+      kimSoyeon.grade = 'vip'
+      kimSoyeon.tags = ['눈성형', '재방문', 'VIP', '소개고객']
+      kimSoyeon.memos = [{ id: 'MEMO-DEMO-003', content: '지인 3명 소개한 우수 고객. 항상 친절하고 시간 약속 잘 지킴.', type: 'reception' as MemoType, createdAt: '2026-01-15T10:00:00.000Z' }]
+    }
+    const leeJihyun = customers.find((c) => c.phone === '010-3333-4444')
+    if (leeJihyun) {
+      leeJihyun.grade = 'vip'
+      leeJihyun.tags = ['코성형', '리프팅', 'VIP', '고액시술']
+      leeJihyun.memos = [{ id: 'MEMO-DEMO-004', content: '코성형 + 리프팅 동시 시술 고객. 시술 결과 매우 만족. 추가 시술 관심.', type: 'consultation' as MemoType, createdAt: '2026-01-20T14:00:00.000Z' }]
+    }
+
+    const goldPhones = ['010-2222-3333', '010-5555-6666', '010-7777-8888', '010-1234-1111']
+    const goldTags = [['코성형', '경과좋음'], ['리프팅', '정기방문'], ['가슴성형', '상담완료'], ['안면윤곽', '수술예정']]
+    goldPhones.forEach((phone, i) => {
+      const c = customers.find((cst) => cst.phone === phone)
+      if (c) { c.grade = 'gold'; c.tags = goldTags[i] }
+    })
+
+    const silverPhones = ['010-4444-5555', '010-6666-7777', '010-8888-9999', '010-2345-2222', '010-3456-3333']
+    const silverTags = [['피부시술'], ['쁘띠성형', '보톡스'], ['눈성형'], ['지방흡입', '상담중'], ['피부시술', '레이저']]
+    silverPhones.forEach((phone, i) => {
+      const c = customers.find((cst) => cst.phone === phone)
+      if (c) { c.grade = 'silver'; c.tags = silverTags[i] }
+    })
+
     saveCustomers(customers)
 
     customerStorage.generateFollowUps(bookings)

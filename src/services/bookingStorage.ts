@@ -418,6 +418,58 @@ export const bookingStorage = {
       },
     ]
 
-    save(demoBookings)
+    const xN = ['김소연','박하나','이지현','최서윤','정다은','한예진','오수빈','강유진','윤채원','임서진','송민지','배지영','조은서','신하영','장수정','문예은','양서현','권다인','류하은','남지우','홍수아','전예나','고은별','서하늘','안지민','유다현','노서윤','황예림','방지혜','차서연','김도현','박정우','이승민','최재원','정민호','한지훈','오성준','강태영']
+    const xP = ['010-1111-2222','010-2222-3333','010-3333-4444','010-4444-5555','010-5555-6666','010-6666-7777','010-7777-8888','010-8888-9999','010-1234-1111','010-2345-2222','010-3456-3333','010-4567-4444','010-5678-5555','010-6789-6666','010-7890-7777','010-8901-8888','010-9012-9999','010-1122-3344','010-2233-4455','010-3344-5566','010-4455-6677','010-5566-7788','010-6677-8899','010-7788-9900','010-8899-0011','010-9900-1122','010-1010-2020','010-2020-3030','010-3030-4040','010-4040-5050','010-5050-6060','010-6060-7070','010-7070-8080','010-8080-9090','010-9090-1010','010-1515-2525','010-2525-3535','010-3535-4545']
+    const xPr = ['눈성형','코성형','안면윤곽','리프팅','가슴성형','지방흡입','피부시술','쁘띠성형']
+    const xSt: BookingStatus[] = ['confirmed','pending','completed','confirmed','pending','confirmed','completed','cancelled','confirmed','pending']
+    const xSr: AcquisitionSource[] = ['naver','instagram','youtube','kakao','referral','blog','ad','walk_in','other']
+    const xMd: Record<AcquisitionSource, string> = { naver:'search', instagram:'social', youtube:'video', kakao:'message', referral:'word_of_mouth', blog:'content', ad:'display', walk_in:'direct', other:'other' }
+    const xCp = ['','네이버_코성형_검색광고','인스타_신년_이벤트','2월_피부관리_프로모션','','SNS_리프팅_홍보','유튜브_눈성형_후기','카카오_피부시술_할인','','1월_코성형_이벤트','2월_눈성형_프로모션','SNS_안면윤곽_후기','','블로그_필러_후기']
+    const xMs = ['상담 예약합니다.','시술 상담 원합니다.','비용 문의드립니다.','가격과 후기 궁금합니다.','상담 예약 부탁드립니다.','시술 가능한지 문의합니다.']
+    const addD = (base: string, days: number): string => { const dt = new Date(base); dt.setDate(dt.getDate() + days); return dt.toISOString() }
+
+    const xBookings: Booking[] = xN.map((name, i) => {
+      const st = xSt[i % xSt.length]
+      const sr = xSr[i % xSr.length]
+      const pr = xPr[i % xPr.length]
+      const bd = new Date(2026, 0, 10 + i)
+      const ds = bd.toISOString().split('T')[0]
+      const hr = 9 + (i % 9)
+      const ts = `${String(hr).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`
+      const cd = new Date(bd); cd.setDate(cd.getDate() - 1 - (i % 4)); cd.setHours(8 + (i % 10), 0, 0, 0)
+      const ca = cd.toISOString()
+
+      let js: JourneyStage
+      let jh: Booking['journeyHistory']
+
+      if (st === 'cancelled') {
+        js = 'inquiry'; jh = [{ stage: 'inquiry', timestamp: ca }]
+      } else if (st === 'pending') {
+        if (i % 3 === 0) { js = 'consultation'; jh = [{ stage: 'inquiry', timestamp: ca }, { stage: 'consultation', timestamp: addD(ca, 1) }] }
+        else { js = 'inquiry'; jh = [{ stage: 'inquiry', timestamp: ca }] }
+      } else if (st === 'confirmed') {
+        if (i % 3 === 0) { js = 'procedure_scheduled'; jh = [{ stage: 'inquiry', timestamp: ca }, { stage: 'consultation', timestamp: addD(ca, 1) }, { stage: 'procedure_scheduled', timestamp: addD(ca, 2) }] }
+        else { js = 'consultation'; jh = [{ stage: 'inquiry', timestamp: ca }, { stage: 'consultation', timestamp: addD(ca, 1) }] }
+      } else {
+        const bh: Booking['journeyHistory'] = [{ stage: 'inquiry', timestamp: ca }, { stage: 'consultation', timestamp: addD(ca, 2) }, { stage: 'procedure_scheduled', timestamp: addD(ca, 3) }, { stage: 'procedure_done', timestamp: addD(ca, 7) }]
+        if (i % 3 === 0) { js = 'retention'; jh = [...bh, { stage: 'follow_up', timestamp: addD(ca, 10) }, { stage: 'retention', timestamp: addD(ca, 20) }] }
+        else if (i % 3 === 1) { js = 'follow_up'; jh = [...bh, { stage: 'follow_up', timestamp: addD(ca, 10) }] }
+        else { js = 'procedure_done'; jh = bh }
+      }
+
+      return {
+        id: `BK-DEMO-${String(i + 13).padStart(3, '0')}`,
+        name, phone: xP[i], procedure: pr,
+        date: ds, time: ts,
+        message: `${pr} ${xMs[i % xMs.length]}`,
+        status: st, createdAt: ca,
+        memo: i % 8 === 0 ? '기존 고객, 재방문' : '',
+        source: sr, medium: xMd[sr],
+        campaign: xCp[i % xCp.length],
+        journeyStage: js, journeyHistory: jh,
+      }
+    })
+
+    save([...demoBookings, ...xBookings])
   },
 }

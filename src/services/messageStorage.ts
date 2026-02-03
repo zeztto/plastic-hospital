@@ -307,7 +307,23 @@ export const messageStorage = {
       },
     ]
 
-    saveTemplates(templates)
+    const xTplData: Array<{ name: string; category: TemplateCategory; channel: MessageChannel; content: string; variables: string[] }> = [
+      { name: '리프팅 시술 후 안내', category: 'post_procedure', channel: 'kakao', content: '{{고객명}}님, {{시술명}} 시술이 완료되었습니다.\n\n[시술 후 주의사항]\n• 3일간 큰 입벌림 자제\n• 1주간 사우나/찜질방 금지\n• 세안 시 시술 부위 문지르지 않기\n\n이상 증상 시: 02-1234-5678', variables: ['고객명', '시술명'] },
+      { name: '재방문 안내', category: 'follow_up', channel: 'sms', content: '[뷰티플성형외과] {{고객명}}님, 마지막 방문 후 한 달이 지났습니다. 경과 확인을 위해 재방문을 권장드립니다. 예약: 02-1234-5678', variables: ['고객명'] },
+      { name: '봄맞이 프로모션', category: 'promotion', channel: 'lms', content: '{{고객명}}님, 봄맞이 특별 프로모션!\n\n🌸 피부시술 30% 할인\n🌸 보톡스+필러 패키지 25% 할인\n🌸 친구 동반 시 추가 10% 할인\n\n기간: 3/1~3/31\n예약: 02-1234-5678', variables: ['고객명'] },
+      { name: 'VIP 고객 감사 메시지', category: 'custom', channel: 'kakao', content: '{{고객명}}님, 항상 뷰티플 성형외과를 이용해주셔서 감사합니다. VIP 고객님께 다음 시술 시 15% 특별 할인을 드립니다. 문의: 02-1234-5678', variables: ['고객명'] },
+      { name: '수술 전 주의사항 안내', category: 'custom', channel: 'lms', content: '{{고객명}}님, {{날짜}} {{시술명}} 수술 전 주의사항 안내드립니다.\n\n• 수술 8시간 전부터 금식\n• 당일 화장/렌즈/악세서리 착용 금지\n• 편한 옷차림, 보호자 동반 필수\n• 아스피린/혈액순환제 1주 전부터 중단\n\n문의: 02-1234-5678', variables: ['고객명', '날짜', '시술명'] },
+      { name: '신규 환영 할인 안내', category: 'welcome', channel: 'kakao', content: '안녕하세요 {{고객명}}님! 뷰티플 성형외과 첫 방문을 환영합니다. 신규 고객 전용 혜택으로 첫 상담 무료 + 시술 10% 할인을 드립니다. 지금 바로 예약하세요! 02-1234-5678', variables: ['고객명'] },
+      { name: '경과 확인 2주차', category: 'follow_up', channel: 'kakao', content: '{{고객명}}님, {{시술명}} 시술 후 2주가 지났습니다. 현재 회복 상태는 어떠신가요? 불편한 점이 있으시면 내원해 주세요. 예약: 02-1234-5678', variables: ['고객명', '시술명'] },
+    ]
+    const xTemplates: MessageTemplate[] = xTplData.map((d, i) => ({
+      ...d,
+      id: `TPL-DEMO-${String(i + 9).padStart(3, '0')}`,
+      isActive: i !== 4,
+      createdAt: now,
+      updatedAt: now,
+    }))
+    saveTemplates([...templates, ...xTemplates])
 
     const sends: MessageSendRecord[] = [
       {
@@ -372,7 +388,25 @@ export const messageStorage = {
       },
     ]
 
-    saveSends(sends)
+    const sN = ['김소연','박하나','이지현','최서윤','정다은','한예진','오수빈','강유진','윤채원','임서진','송민지','배지영','조은서','신하영','장수정','문예은','양서현','권다인','류하은','남지우']
+    const sP = ['010-1111-2222','010-2222-3333','010-3333-4444','010-4444-5555','010-5555-6666','010-6666-7777','010-7777-8888','010-8888-9999','010-1234-1111','010-2345-2222','010-3456-3333','010-4567-4444','010-5678-5555','010-6789-6666','010-7890-7777','010-8901-8888','010-9012-9999','010-1122-3344','010-2233-4455','010-3344-5566']
+    const sTplIds = ['TPL-DEMO-001','TPL-DEMO-003','TPL-DEMO-005','TPL-DEMO-007','TPL-DEMO-008','TPL-DEMO-009','TPL-DEMO-010','TPL-DEMO-011','TPL-DEMO-012','TPL-DEMO-013']
+    const sTplNames = ['신규 고객 환영 인사','예약 확인 안내','눈성형 시술 후 안내','시술 3일 후 경과 확인','2월 프로모션 안내','리프팅 시술 후 안내','재방문 안내','봄맞이 프로모션','VIP 고객 감사 메시지','수술 전 주의사항 안내']
+    const sCh: MessageChannel[] = ['kakao','sms','kakao','sms','lms','kakao','sms','lms','kakao','lms']
+    const sSt: SendStatus[] = ['sent','sent','sent','sent','failed','sent','sent','sent','pending','sent','sent','failed','sent','sent','sent','pending','sent','sent','failed','pending']
+    const xSends: MessageSendRecord[] = sN.map((name, i) => ({
+      id: `SEND-DEMO-${String(i + 6).padStart(3, '0')}`,
+      templateId: sTplIds[i % sTplIds.length],
+      templateName: sTplNames[i % sTplNames.length],
+      channel: sCh[i % sCh.length],
+      recipientName: name,
+      recipientPhone: sP[i],
+      content: `${name}님께 발송된 ${sTplNames[i % sTplNames.length]} 메시지`,
+      status: sSt[i],
+      sentAt: new Date(2026, 0, 20 + (i % 15), 9 + (i % 9), i * 3).toISOString(),
+      createdAt: new Date(2026, 0, 20 + (i % 15), 9 + (i % 9), i * 3).toISOString(),
+    }))
+    saveSends([...sends, ...xSends])
 
     const autoSendRules: AutoSendRule[] = [
       { id: 'AUTO-DEMO-001', trigger: 'booking_confirmed' as AutoSendTrigger, templateId: 'TPL-DEMO-003', channel: 'sms' as MessageChannel, isEnabled: true },
