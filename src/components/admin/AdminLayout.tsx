@@ -6,7 +6,10 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import {
   LayoutDashboard,
   CalendarDays,
+  CalendarClock,
   BarChart3,
+  Users,
+  Clock,
   LogOut,
   Menu,
   X,
@@ -17,6 +20,9 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { label: '대시보드', href: '/admin', icon: LayoutDashboard },
   { label: '예약 관리', href: '/admin/bookings', icon: CalendarDays },
+  { label: '고객 관리', href: '/admin/customers', icon: Users },
+  { label: '팔로업', href: '/admin/follow-ups', icon: Clock },
+  { label: '스케줄', href: '/admin/schedule', icon: CalendarClock },
   { label: '마케팅 분석', href: '/admin/marketing', icon: BarChart3 },
 ]
 

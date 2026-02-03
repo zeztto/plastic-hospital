@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { BookingProvider } from '@/contexts/BookingContext'
+import { CustomerProvider } from '@/contexts/CustomerContext'
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext'
 import { EMRAuthProvider } from '@/contexts/EMRAuthContext'
 import { EMRProvider } from '@/contexts/EMRContext'
@@ -10,6 +11,10 @@ import { Dashboard } from '@/pages/admin/Dashboard'
 import { BookingList } from '@/pages/admin/BookingList'
 import { BookingDetail } from '@/pages/admin/BookingDetail'
 import { MarketingDashboard } from '@/pages/admin/MarketingDashboard'
+import { CustomerList } from '@/pages/admin/CustomerList'
+import { CustomerDetail } from '@/pages/admin/CustomerDetail'
+import { FollowUpList } from '@/pages/admin/FollowUpList'
+import { ScheduleCalendar } from '@/pages/admin/ScheduleCalendar'
 import { AdminLayout } from '@/components/admin/AdminLayout'
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute'
 import { EMRLogin } from '@/pages/emr/EMRLogin'
@@ -31,8 +36,9 @@ function App() {
     <BrowserRouter>
       <AdminAuthProvider>
         <EMRAuthProvider>
-          <BookingProvider>
-            <EMRProvider>
+            <BookingProvider>
+              <CustomerProvider>
+              <EMRProvider>
               <Routes>
                 <Route path="/" element={<Home />} />
 
@@ -49,6 +55,10 @@ function App() {
                   <Route index element={<Dashboard />} />
                   <Route path="bookings" element={<BookingList />} />
                   <Route path="bookings/:id" element={<BookingDetail />} />
+                  <Route path="customers" element={<CustomerList />} />
+                  <Route path="customers/:id" element={<CustomerDetail />} />
+                  <Route path="follow-ups" element={<FollowUpList />} />
+                  <Route path="schedule" element={<ScheduleCalendar />} />
                   <Route path="marketing" element={<MarketingDashboard />} />
                 </Route>
 
@@ -75,7 +85,8 @@ function App() {
                 </Route>
               </Routes>
               <Toaster richColors position="top-right" />
-            </EMRProvider>
+              </EMRProvider>
+              </CustomerProvider>
           </BookingProvider>
         </EMRAuthProvider>
       </AdminAuthProvider>
