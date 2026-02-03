@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,10 +17,16 @@ import {
   UserPlus,
   TrendingUp,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react'
 
 export function EMRDashboard() {
   const { patients, stats } = useEMR()
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setIsLoading(false)
+  }, [patients])
 
   const allRecords = useMemo(() => {
     return patients
@@ -64,6 +70,14 @@ export function EMRDashboard() {
   const recentPrescriptions = allPrescriptions.slice(0, 3)
 
   const patientsWithAllergies = patients.filter((p) => p.allergies.length > 0)
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -176,7 +190,7 @@ export function EMRDashboard() {
                 {scheduledProcedures.slice(0, 5).map((proc) => (
                   <Link
                     key={proc.id}
-                    to={`/emr/patients/${proc.patientId}`}
+                    to={`/emr/procedures/${proc.id}`}
                     className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                   >
                     <div>
@@ -193,7 +207,13 @@ export function EMRDashboard() {
                   </Link>
                 ))}
               </div>
-            )}
+             )}
+            <Link
+              to="/emr/procedures"
+              className="block text-sm text-primary hover:underline text-center mt-4"
+            >
+              전체 시술 기록 →
+            </Link>
           </CardContent>
         </Card>
 
@@ -267,7 +287,7 @@ export function EMRDashboard() {
                 {recentRecords.map((record) => (
                   <Link
                     key={record.id}
-                    to={`/emr/patients/${record.patientId}`}
+                    to={`/emr/records/${record.id}`}
                     className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                   >
                     <div>
@@ -346,7 +366,7 @@ export function EMRDashboard() {
               {recentPrescriptions.map((rx) => (
                 <Link
                   key={rx.id}
-                  to={`/emr/patients/${rx.patientId}`}
+                  to={`/emr/prescriptions/${rx.id}`}
                   className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
                   <div>
@@ -363,6 +383,12 @@ export function EMRDashboard() {
                 </Link>
               ))}
             </div>
+            <Link
+              to="/emr/prescriptions"
+              className="block text-sm text-primary hover:underline text-center mt-4"
+            >
+              전체 처방전 →
+            </Link>
           </CardContent>
         </Card>
       )}

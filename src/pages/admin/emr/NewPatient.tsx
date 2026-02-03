@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
 import { useEMR } from '@/contexts/EMRContext'
 import { BLOOD_TYPES, type Gender } from '@/types/emr'
 import { ArrowLeft, UserPlus } from 'lucide-react'
@@ -49,6 +50,7 @@ export function NewPatient() {
       medicalHistory,
     })
 
+    toast.success('환자가 등록되었습니다.')
     navigate(`/emr/patients/${patient.id}`)
   }
 

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -14,55 +13,50 @@ import {
 } from '@/components/ui/table'
 import { useEMR } from '@/contexts/EMRContext'
 import { emrStorage } from '@/services/emrStorage'
-import { PROCEDURE_STATUS_LABELS, PROCEDURE_STATUS_COLORS } from '@/types/emr'
-import type { ProcedureStatus } from '@/types/emr'
-import { Search, Scissors, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Pill, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const PAGE_SIZE = 10
 
-type SortKey = 'date' | 'patientName' | 'procedureName' | 'doctor' | 'status'
+type SortKey = 'date' | 'patientName' | 'doctorName' | 'medicationCount'
 
-const statusFilters: Array<{ value: ProcedureStatus | 'all'; label: string }> = [
-  { value: 'all', label: '전체' },
-  { value: 'scheduled', label: '예정' },
-  { value: 'completed', label: '완료' },
-  { value: 'cancelled', label: '취소' },
-]
-
-export function ProceduresList() {
+export function PrescriptionsList() {
   const { patients } = useEMR()
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<ProcedureStatus | 'all'>('all')
   const [sortKey, setSortKey] = useState<SortKey>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const allProcedures = useMemo(() => {
+  const allPrescriptions = useMemo(() => {
     return patients
       .flatMap((p) =>
-        emrStorage.getProceduresByPatient(p.id).map((pr) => ({
-          ...pr,
+        emrStorage.getPrescriptionsByPatient(p.id).map((rx) => ({
+          ...rx,
           patientName: p.name,
           patientChartNumber: p.chartNumber,
         }))
       )
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
   }, [patients])
 
   const filtered = useMemo(() => {
-    return allProcedures.filter((p) => {
-      const matchesSearch =
-        search === '' ||
-        p.patientName.includes(search) ||
-        p.procedureName.includes(search) ||
-        p.doctor.includes(search)
-      const matchesStatus = statusFilter === 'all' || p.status === statusFilter
-      return matchesSearch && matchesStatus
-    })
-  }, [allProcedures, search, statusFilter])
+    if (!search) return allPrescriptions
+    const q = search.toLowerCase()
+    return allPrescriptions.filter(
+      (rx) =>
+        rx.patientName.includes(search) ||
+        rx.doctorName.includes(search) ||
+        rx.medications.some((m) => m.name.toLowerCase().includes(q))
+    )
+  }, [allPrescriptions, search])
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
+      if (sortKey === 'medicationCount') {
+        const diff = a.medications.length - b.medications.length
+        return sortDir === 'asc' ? diff : -diff
+      }
       const va = a[sortKey] ?? ''
       const vb = b[sortKey] ?? ''
       const cmp = String(va).localeCompare(String(vb), 'ko')
@@ -88,11 +82,6 @@ export function ProceduresList() {
     setCurrentPage(1)
   }
 
-  const handleStatusFilter = (value: ProcedureStatus | 'all') => {
-    setStatusFilter(value)
-    setCurrentPage(1)
-  }
-
   const SortIcon = ({ column }: { column: SortKey }) => {
     if (sortKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />
     return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />
@@ -102,10 +91,10 @@ export function ProceduresList() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-          시술 기록
+          처방전
         </h1>
         <p className="text-muted-foreground mt-1">
-          전체 {allProcedures.length}건의 시술 기록을 조회합니다.
+          전체 {allPrescriptions.length}건의 처방전을 조회합니다.
         </p>
       </div>
 
@@ -113,48 +102,28 @@ export function ProceduresList() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Scissors className="w-5 h-5 text-primary" />
-              시술 기록 목록
+              <Pill className="w-5 h-5 text-primary" />
+              처방전 목록
             </CardTitle>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="환자명, 시술명, 담당의 검색..."
+                placeholder="환자명, 담당의, 약물명 검색..."
                 value={search}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-9 w-full sm:w-64"
               />
             </div>
           </div>
-
-          <div className="flex gap-2 flex-wrap">
-            <Filter className="w-4 h-4 text-muted-foreground mt-1" />
-            {statusFilters.map((f) => (
-              <Button
-                key={f.value}
-                variant={statusFilter === f.value ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => handleStatusFilter(f.value)}
-                className={statusFilter === f.value ? 'bg-primary' : ''}
-              >
-                {f.label}
-                {f.value !== 'all' && (
-                  <span className="ml-1 opacity-70">
-                    ({allProcedures.filter((p) => p.status === f.value).length})
-                  </span>
-                )}
-              </Button>
-            ))}
-          </div>
         </CardHeader>
         <CardContent>
           {sorted.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Scissors className="w-12 h-12 mx-auto mb-4 opacity-30" />
+              <Pill className="w-12 h-12 mx-auto mb-4 opacity-30" />
               <p>
-                {search || statusFilter !== 'all'
+                {search
                   ? '검색 결과가 없습니다.'
-                  : '시술 기록이 없습니다.'}
+                  : '처방전이 없습니다.'}
               </p>
             </div>
           ) : (
@@ -164,53 +133,47 @@ export function ProceduresList() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('date')}>
-                        <span className="flex items-center">시술일<SortIcon column="date" /></span>
+                        <span className="flex items-center">처방일<SortIcon column="date" /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('patientName')}>
                         <span className="flex items-center">환자명<SortIcon column="patientName" /></span>
                       </TableHead>
                       <TableHead>차트번호</TableHead>
-                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('procedureName')}>
-                        <span className="flex items-center">시술명<SortIcon column="procedureName" /></span>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('doctorName')}>
+                        <span className="flex items-center">담당의<SortIcon column="doctorName" /></span>
                       </TableHead>
-                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('doctor')}>
-                        <span className="flex items-center">담당의<SortIcon column="doctor" /></span>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('medicationCount')}>
+                        <span className="flex items-center">약물 수<SortIcon column="medicationCount" /></span>
                       </TableHead>
-                      <TableHead>마취</TableHead>
-                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('status')}>
-                        <span className="flex items-center">상태<SortIcon column="status" /></span>
-                      </TableHead>
+                      <TableHead>비고</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginated.map((proc) => (
-                      <TableRow key={proc.id}>
-                        <TableCell>{proc.date}</TableCell>
+                    {paginated.map((rx) => (
+                      <TableRow key={rx.id}>
+                        <TableCell>{rx.date}</TableCell>
                         <TableCell>
                           <Link
-                            to={`/emr/patients/${proc.patientId}`}
+                            to={`/emr/patients/${rx.patientId}`}
                             className="font-medium text-primary hover:underline"
                           >
-                            {proc.patientName}
+                            {rx.patientName}
                           </Link>
                         </TableCell>
                         <TableCell className="font-mono text-xs">
-                          {proc.patientChartNumber}
+                          {rx.patientChartNumber}
                         </TableCell>
+                        <TableCell>{rx.doctorName}</TableCell>
                         <TableCell>
                           <Link
-                            to={`/emr/procedures/${proc.id}`}
+                            to={`/emr/prescriptions/${rx.id}`}
                             className="font-medium text-primary hover:underline"
                           >
-                            {proc.procedureName}
+                            {rx.medications.length}종
                           </Link>
                         </TableCell>
-                        <TableCell>{proc.doctor}</TableCell>
-                        <TableCell>{proc.anesthesiaType}</TableCell>
-                        <TableCell>
-                          <Badge className={PROCEDURE_STATUS_COLORS[proc.status]}>
-                            {PROCEDURE_STATUS_LABELS[proc.status]}
-                          </Badge>
+                        <TableCell className="max-w-[200px] truncate text-muted-foreground">
+                          {rx.notes || '-'}
                         </TableCell>
                       </TableRow>
                     ))}

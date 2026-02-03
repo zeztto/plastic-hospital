@@ -3,7 +3,29 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { toast } from 'sonner'
 import { useEMR } from '@/contexts/EMRContext'
 import { GENDER_LABELS } from '@/types/emr'
 import type { MedicalRecord, Patient } from '@/types/emr'
@@ -15,22 +37,53 @@ import {
   FileText,
   Trash2,
   Calendar,
+  Pencil,
+  Loader2,
 } from 'lucide-react'
 
 export function RecordDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { getRecordById, getPatient, deleteRecord } = useEMR()
+  const { getRecordById, getPatient, updateRecord, deleteRecord } = useEMR()
 
   const [record, setRecord] = useState<MedicalRecord | undefined>()
   const [patient, setPatient] = useState<Patient | undefined>()
+  const [editOpen, setEditOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [form, setForm] = useState({
+    date: '',
+    doctorName: '',
+    chiefComplaint: '',
+    diagnosis: '',
+    diagnosisCode: '',
+    bloodPressure: '',
+    pulse: '',
+    temperature: '',
+    weight: '',
+    height: '',
+    treatmentPlan: '',
+    notes: '',
+  })
 
-  useEffect(() => {
+  const loadData = () => {
     if (!id) return
     const r = getRecordById(id)
     setRecord(r)
     if (r) setPatient(getPatient(r.patientId))
+  }
+
+  useEffect(() => {
+    loadData()
+    setIsLoading(false)
   }, [id, getRecordById, getPatient])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   if (!record) {
     return (
@@ -44,12 +97,54 @@ export function RecordDetail() {
     )
   }
 
-  const handleDelete = () => {
-    if (window.confirm('이 진료 기록을 삭제하시겠습니까?')) {
-      deleteRecord(record.id)
-      navigate('/emr/records')
-    }
+  const handleEditOpen = () => {
+    setForm({
+      date: record.date,
+      doctorName: record.doctorName,
+      chiefComplaint: record.chiefComplaint,
+      diagnosis: record.diagnosis,
+      diagnosisCode: record.diagnosisCode,
+      bloodPressure: record.vitalSigns.bloodPressure,
+      pulse: String(record.vitalSigns.pulse || ''),
+      temperature: String(record.vitalSigns.temperature || ''),
+      weight: String(record.vitalSigns.weight || ''),
+      height: String(record.vitalSigns.height || ''),
+      treatmentPlan: record.treatmentPlan,
+      notes: record.notes,
+    })
+    setEditOpen(true)
   }
+
+  const handleEditSubmit = () => {
+    if (!form.chiefComplaint || !form.diagnosis) return
+    updateRecord(record.id, {
+      date: form.date,
+      doctorName: form.doctorName,
+      chiefComplaint: form.chiefComplaint,
+      diagnosis: form.diagnosis,
+      diagnosisCode: form.diagnosisCode,
+      vitalSigns: {
+        bloodPressure: form.bloodPressure,
+        pulse: Number(form.pulse) || 0,
+        temperature: Number(form.temperature) || 0,
+        weight: Number(form.weight) || 0,
+        height: Number(form.height) || 0,
+      },
+      treatmentPlan: form.treatmentPlan,
+      notes: form.notes,
+    })
+    setEditOpen(false)
+    toast.success('진료 기록이 수정되었습니다.')
+    loadData()
+  }
+
+  const handleDelete = () => {
+    deleteRecord(record.id)
+    toast.success('진료 기록이 삭제되었습니다.')
+    navigate('/emr/records')
+  }
+
+  const set = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }))
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -71,6 +166,80 @@ export function RecordDetail() {
             {record.date} · {record.doctorName}
           </p>
         </div>
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" onClick={handleEditOpen}>
+              <Pencil className="w-4 h-4 mr-1" />수정
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>진료기록 수정</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>진료일</Label>
+                  <Input type="date" value={form.date} onChange={(e) => set('date', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>담당의</Label>
+                  <Input value={form.doctorName} onChange={(e) => set('doctorName', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label>주소증 *</Label>
+                <Input value={form.chiefComplaint} onChange={(e) => set('chiefComplaint', e.target.value)} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>진단명 *</Label>
+                  <Input value={form.diagnosis} onChange={(e) => set('diagnosis', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>진단코드</Label>
+                  <Input value={form.diagnosisCode} onChange={(e) => set('diagnosisCode', e.target.value)} />
+                </div>
+              </div>
+              <Separator />
+              <p className="text-sm font-medium flex items-center gap-1">
+                <Activity className="w-4 h-4" /> 바이탈 사인
+              </p>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">혈압</Label>
+                  <Input value={form.bloodPressure} onChange={(e) => set('bloodPressure', e.target.value)} placeholder="120/80" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">맥박 (bpm)</Label>
+                  <Input type="number" value={form.pulse} onChange={(e) => set('pulse', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">체온 (°C)</Label>
+                  <Input type="number" step="0.1" value={form.temperature} onChange={(e) => set('temperature', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">체중 (kg)</Label>
+                  <Input type="number" value={form.weight} onChange={(e) => set('weight', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">신장 (cm)</Label>
+                  <Input type="number" value={form.height} onChange={(e) => set('height', e.target.value)} />
+                </div>
+              </div>
+              <Separator />
+              <div className="space-y-1">
+                <Label>치료 계획</Label>
+                <Textarea value={form.treatmentPlan} onChange={(e) => set('treatmentPlan', e.target.value)} rows={2} />
+              </div>
+              <div className="space-y-1">
+                <Label>메모</Label>
+                <Textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} rows={2} />
+              </div>
+              <Button onClick={handleEditSubmit} className="w-full">저장</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {patient && (
@@ -223,10 +392,26 @@ export function RecordDetail() {
               <p className="font-medium text-destructive">진료 기록 삭제</p>
               <p className="text-sm text-muted-foreground">이 작업은 되돌릴 수 없습니다.</p>
             </div>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              삭제
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  삭제
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>삭제 확인</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    이 진료 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">삭제</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardContent>
       </Card>

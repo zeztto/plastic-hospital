@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -12,11 +13,18 @@ import {
 } from '@/components/ui/table'
 import { useEMR } from '@/contexts/EMRContext'
 import { emrStorage } from '@/services/emrStorage'
-import { Search, Stethoscope } from 'lucide-react'
+import { Search, Stethoscope, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
+
+const PAGE_SIZE = 10
+
+type SortKey = 'date' | 'patientName' | 'doctorName' | 'diagnosis' | 'diagnosisCode'
 
 export function RecordsList() {
   const { patients } = useEMR()
   const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey>('date')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [currentPage, setCurrentPage] = useState(1)
 
   const allRecords = useMemo(() => {
     return patients
@@ -27,9 +35,7 @@ export function RecordsList() {
           patientChartNumber: p.chartNumber,
         }))
       )
-      .sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [patients])
 
   const filtered = useMemo(() => {
@@ -44,6 +50,40 @@ export function RecordsList() {
         r.diagnosisCode.toLowerCase().includes(q)
     )
   }, [allRecords, search])
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const va = a[sortKey] ?? ''
+      const vb = b[sortKey] ?? ''
+      const cmp = sortKey === 'date'
+        ? new Date(va).getTime() - new Date(vb).getTime()
+        : String(va).localeCompare(String(vb), 'ko')
+      return sortDir === 'asc' ? cmp : -cmp
+    })
+  }, [filtered, sortKey, sortDir])
+
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE)
+  const paginated = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+    setCurrentPage(1)
+  }
+
+  const handleSearchChange = (v: string) => {
+    setSearch(v)
+    setCurrentPage(1)
+  }
+
+  const SortIcon = ({ column }: { column: SortKey }) => {
+    if (sortKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />
+    return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />
+  }
 
   return (
     <div className="space-y-6">
@@ -68,71 +108,95 @@ export function RecordsList() {
               <Input
                 placeholder="환자명, 담당의, 진단명 검색..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-9 w-full sm:w-64"
               />
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          {filtered.length === 0 ? (
+          {sorted.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Stethoscope className="w-12 h-12 mx-auto mb-4 opacity-30" />
               <p>
-                {search
-                  ? '검색 결과가 없습니다.'
-                  : '진료 기록이 없습니다.'}
+                {search ? '검색 결과가 없습니다.' : '진료 기록이 없습니다.'}
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>진료일</TableHead>
-                    <TableHead>환자명</TableHead>
-                    <TableHead>차트번호</TableHead>
-                    <TableHead>담당의</TableHead>
-                    <TableHead>주소증</TableHead>
-                    <TableHead>진단명</TableHead>
-                    <TableHead>진단코드</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell>{record.date}</TableCell>
-                      <TableCell>
-                        <Link
-                          to={`/emr/patients/${record.patientId}`}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          {record.patientName}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {record.patientChartNumber}
-                      </TableCell>
-                      <TableCell>{record.doctorName}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {record.chiefComplaint}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          to={`/emr/records/${record.id}`}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          {record.diagnosis}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {record.diagnosisCode}
-                      </TableCell>
+            <>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('date')}>
+                        <span className="flex items-center">진료일<SortIcon column="date" /></span>
+                      </TableHead>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('patientName')}>
+                        <span className="flex items-center">환자명<SortIcon column="patientName" /></span>
+                      </TableHead>
+                      <TableHead>차트번호</TableHead>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('doctorName')}>
+                        <span className="flex items-center">담당의<SortIcon column="doctorName" /></span>
+                      </TableHead>
+                      <TableHead>주소증</TableHead>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('diagnosis')}>
+                        <span className="flex items-center">진단명<SortIcon column="diagnosis" /></span>
+                      </TableHead>
+                      <TableHead className="cursor-pointer select-none" onClick={() => handleSort('diagnosisCode')}>
+                        <span className="flex items-center">진단코드<SortIcon column="diagnosisCode" /></span>
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {paginated.map((record) => (
+                      <TableRow key={record.id}>
+                        <TableCell>{record.date}</TableCell>
+                        <TableCell>
+                          <Link
+                            to={`/emr/patients/${record.patientId}`}
+                            className="font-medium text-primary hover:underline"
+                          >
+                            {record.patientName}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {record.patientChartNumber}
+                        </TableCell>
+                        <TableCell>{record.doctorName}</TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {record.chiefComplaint}
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            to={`/emr/records/${record.id}`}
+                            className="font-medium text-primary hover:underline"
+                          >
+                            {record.diagnosis}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {record.diagnosisCode}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+                <span>전체 {sorted.length}건</span>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setCurrentPage((p) => p - 1)}>
+                    <ChevronLeft className="w-4 h-4" />
+                    이전
+                  </Button>
+                  <span>{currentPage} / {totalPages || 1} 페이지</span>
+                  <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
+                    다음
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

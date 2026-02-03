@@ -56,6 +56,20 @@ export const emrStorage = {
     persist(PATIENTS_KEY, all)
     return all[idx]
   },
+  deletePatient(id: string): boolean {
+    const patients = load<Patient>(PATIENTS_KEY)
+    const filtered = patients.filter((p) => p.id !== id)
+    if (filtered.length === patients.length) return false
+    persist(PATIENTS_KEY, filtered)
+    // Cascade delete related records
+    const records = load<MedicalRecord>(RECORDS_KEY).filter((r) => r.patientId !== id)
+    persist(RECORDS_KEY, records)
+    const procedures = load<ProcedureRecord>(PROCEDURES_KEY).filter((p) => p.patientId !== id)
+    persist(PROCEDURES_KEY, procedures)
+    const prescriptions = load<Prescription>(PRESCRIPTIONS_KEY).filter((p) => p.patientId !== id)
+    persist(PRESCRIPTIONS_KEY, prescriptions)
+    return true
+  },
 
   // ── Medical Records ──
   getAllRecords(): MedicalRecord[] {
@@ -159,6 +173,14 @@ export const emrStorage = {
     all.push(rx)
     persist(PRESCRIPTIONS_KEY, all)
     return rx
+  },
+  updatePrescription(id: string, data: Partial<Prescription>): Prescription | undefined {
+    const all = load<Prescription>(PRESCRIPTIONS_KEY)
+    const idx = all.findIndex((p) => p.id === id)
+    if (idx === -1) return undefined
+    all[idx] = { ...all[idx], ...data, id: all[idx].id, patientId: all[idx].patientId, medicalRecordId: all[idx].medicalRecordId }
+    persist(PRESCRIPTIONS_KEY, all)
+    return all[idx]
   },
   deletePrescription(id: string): boolean {
     const all = load<Prescription>(PRESCRIPTIONS_KEY)

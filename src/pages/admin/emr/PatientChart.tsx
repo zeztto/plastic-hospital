@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
+import { toast } from 'sonner'
 import { useEMR } from '@/contexts/EMRContext'
 import type {
   Patient,
@@ -33,10 +34,12 @@ import type {
 } from '@/types/emr'
 import {
   GENDER_LABELS,
+  BLOOD_TYPES,
   PROCEDURE_STATUS_LABELS,
   PROCEDURE_STATUS_COLORS,
   ANESTHESIA_TYPES,
 } from '@/types/emr'
+import type { Gender } from '@/types/emr'
 import {
   ArrowLeft,
   Plus,
@@ -47,10 +50,57 @@ import {
   Activity,
   Trash2,
   Calendar,
+  Pencil,
+  Loader2,
 } from 'lucide-react'
 
 // ── Tab: 기본정보 ──
-function InfoTab({ patient }: { patient: Patient }) {
+function InfoTab({ patient, onUpdated }: { patient: Patient; onUpdated: () => void }) {
+  const { updatePatient } = useEMR()
+  const [editOpen, setEditOpen] = useState(false)
+  const [editForm, setEditForm] = useState({
+    name: patient.name,
+    birthDate: patient.birthDate,
+    gender: patient.gender as string,
+    phone: patient.phone,
+    address: patient.address,
+    bloodType: patient.bloodType,
+    allergies: patient.allergies.join(', '),
+    medicalHistory: patient.medicalHistory,
+  })
+
+  const handleEditOpen = () => {
+    setEditForm({
+      name: patient.name,
+      birthDate: patient.birthDate,
+      gender: patient.gender,
+      phone: patient.phone,
+      address: patient.address,
+      bloodType: patient.bloodType,
+      allergies: patient.allergies.join(', '),
+      medicalHistory: patient.medicalHistory,
+    })
+    setEditOpen(true)
+  }
+
+  const handleEditSubmit = () => {
+    if (!editForm.name || !editForm.phone) return
+    updatePatient(patient.id, {
+      name: editForm.name,
+      birthDate: editForm.birthDate,
+      gender: editForm.gender as Gender,
+      phone: editForm.phone,
+      address: editForm.address,
+      bloodType: editForm.bloodType,
+      allergies: editForm.allergies.split(',').map((a) => a.trim()).filter(Boolean),
+      medicalHistory: editForm.medicalHistory,
+    })
+    setEditOpen(false)
+    toast.success('환자 정보가 수정되었습니다.')
+    onUpdated()
+  }
+
+  const setEdit = (k: string, v: string) => setEditForm((prev) => ({ ...prev, [k]: v }))
   const fields = [
     { label: '차트번호', value: patient.chartNumber },
     { label: '이름', value: patient.name },
@@ -66,10 +116,78 @@ function InfoTab({ patient }: { patient: Patient }) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="w-5 h-5 text-primary" />
-            기본 정보
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <User className="w-5 h-5 text-primary" />
+              기본 정보
+            </CardTitle>
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" onClick={handleEditOpen}>
+                  <Pencil className="w-4 h-4 mr-1" />수정
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>환자 정보 수정</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>이름 *</Label>
+                      <Input value={editForm.name} onChange={(e) => setEdit('name', e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>생년월일</Label>
+                      <Input type="date" value={editForm.birthDate} onChange={(e) => setEdit('birthDate', e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>성별</Label>
+                      <Select value={editForm.gender} onValueChange={(v) => setEdit('gender', v)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">남성</SelectItem>
+                          <SelectItem value="female">여성</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>혈액형</Label>
+                      <Select value={editForm.bloodType} onValueChange={(v) => setEdit('bloodType', v)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {BLOOD_TYPES.map((t) => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>연락처 *</Label>
+                      <Input value={editForm.phone} onChange={(e) => setEdit('phone', e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>주소</Label>
+                      <Input value={editForm.address} onChange={(e) => setEdit('address', e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>알레르기 (쉼표로 구분)</Label>
+                    <Input value={editForm.allergies} onChange={(e) => setEdit('allergies', e.target.value)} placeholder="페니실린, 아스피린" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>기왕력/병력</Label>
+                    <Textarea value={editForm.medicalHistory} onChange={(e) => setEdit('medicalHistory', e.target.value)} rows={3} />
+                  </div>
+                  <Button onClick={handleEditSubmit} className="w-full">저장</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -180,6 +298,7 @@ function RecordsTab({
     })
     resetForm()
     setOpen(false)
+    toast.success('진료 기록이 등록되었습니다.')
     onCreated()
   }
 
@@ -382,6 +501,7 @@ function ProceduresTab({
     })
     resetForm()
     setOpen(false)
+    toast.success('시술 기록이 등록되었습니다.')
     onCreated()
   }
 
@@ -559,6 +679,7 @@ function PrescriptionsTab({
     })
     resetForm()
     setOpen(false)
+    toast.success('처방전이 등록되었습니다.')
     onCreated()
   }
 
@@ -713,6 +834,7 @@ export function PatientChart() {
   const [records, setRecords] = useState<MedicalRecord[]>([])
   const [procedures, setProcedures] = useState<ProcedureRecord[]>([])
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = () => {
     if (!id) return
@@ -724,12 +846,21 @@ export function PatientChart() {
 
   useEffect(() => {
     loadData()
+    setIsLoading(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const handleCreated = () => {
     refresh()
     loadData()
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
   }
 
   if (!patient) {
@@ -793,7 +924,7 @@ export function PatientChart() {
         </TabsList>
 
         <TabsContent value="info" className="mt-6">
-          <InfoTab patient={patient} />
+          <InfoTab patient={patient} onUpdated={handleCreated} />
         </TabsContent>
 
         <TabsContent value="records" className="mt-6">

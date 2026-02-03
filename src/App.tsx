@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Toaster } from '@/components/ui/sonner'
 import { BookingProvider } from '@/contexts/BookingContext'
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext'
 import { EMRAuthProvider } from '@/contexts/EMRAuthContext'
@@ -21,6 +22,7 @@ import { RecordsList } from '@/pages/admin/emr/RecordsList'
 import { RecordDetail } from '@/pages/admin/emr/RecordDetail'
 import { ProceduresList } from '@/pages/admin/emr/ProceduresList'
 import { ProcedureDetail } from '@/pages/admin/emr/ProcedureDetail'
+import { PrescriptionsList } from '@/pages/admin/emr/PrescriptionsList'
 import { PrescriptionDetail } from '@/pages/admin/emr/PrescriptionDetail'
 
 function App() {
@@ -66,9 +68,11 @@ function App() {
                   <Route path="records/:id" element={<RecordDetail />} />
                   <Route path="procedures" element={<ProceduresList />} />
                   <Route path="procedures/:id" element={<ProcedureDetail />} />
+                  <Route path="prescriptions" element={<PrescriptionsList />} />
                   <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
                 </Route>
               </Routes>
+              <Toaster richColors position="top-right" />
             </EMRProvider>
           </BookingProvider>
         </EMRAuthProvider>

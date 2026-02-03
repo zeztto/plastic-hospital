@@ -3,11 +3,41 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { toast } from 'sonner'
 import { useEMR } from '@/contexts/EMRContext'
 import {
   PROCEDURE_STATUS_LABELS,
   PROCEDURE_STATUS_COLORS,
   GENDER_LABELS,
+  ANESTHESIA_TYPES,
 } from '@/types/emr'
 import type { ProcedureRecord, Patient, ProcedureStatus } from '@/types/emr'
 import {
@@ -20,15 +50,30 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Pencil,
+  Loader2,
 } from 'lucide-react'
 
 export function ProcedureDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { getProcedureById, getPatient, updateProcedureStatus, deleteProcedure } = useEMR()
+  const { getProcedureById, getPatient, updateProcedure, updateProcedureStatus, deleteProcedure } = useEMR()
 
   const [procedure, setProcedure] = useState<ProcedureRecord | undefined>()
   const [patient, setPatient] = useState<Patient | undefined>()
+  const [editOpen, setEditOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [form, setForm] = useState({
+    date: '',
+    procedureName: '',
+    doctor: '',
+    anesthesiaType: '',
+    duration: '',
+    details: '',
+    complications: '',
+    postOpInstructions: '',
+    status: 'scheduled' as ProcedureStatus,
+  })
 
   const loadData = () => {
     if (!id) return
@@ -39,7 +84,16 @@ export function ProcedureDetail() {
 
   useEffect(() => {
     loadData()
+    setIsLoading(false)
   }, [id])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   if (!procedure) {
     return (
@@ -53,17 +107,52 @@ export function ProcedureDetail() {
     )
   }
 
+  const handleEditOpen = () => {
+    setForm({
+      date: procedure.date,
+      procedureName: procedure.procedureName,
+      doctor: procedure.doctor,
+      anesthesiaType: procedure.anesthesiaType,
+      duration: procedure.duration,
+      details: procedure.details,
+      complications: procedure.complications,
+      postOpInstructions: procedure.postOpInstructions,
+      status: procedure.status,
+    })
+    setEditOpen(true)
+  }
+
+  const handleEditSubmit = () => {
+    if (!form.procedureName) return
+    updateProcedure(procedure.id, {
+      date: form.date,
+      procedureName: form.procedureName,
+      doctor: form.doctor,
+      anesthesiaType: form.anesthesiaType,
+      duration: form.duration,
+      details: form.details,
+      complications: form.complications,
+      postOpInstructions: form.postOpInstructions,
+      status: form.status,
+    })
+    setEditOpen(false)
+    toast.success('시술 기록이 수정되었습니다.')
+    loadData()
+  }
+
   const handleStatusChange = (status: ProcedureStatus) => {
     updateProcedureStatus(procedure.id, status)
+    toast.success('시술 상태가 변경되었습니다.')
     loadData()
   }
 
   const handleDelete = () => {
-    if (window.confirm('이 시술 기록을 삭제하시겠습니까?')) {
-      deleteProcedure(procedure.id)
-      navigate('/emr/procedures')
-    }
+    deleteProcedure(procedure.id)
+    toast.success('시술 기록이 삭제되었습니다.')
+    navigate('/emr/procedures')
   }
+
+  const set = (k: string, v: string) => setForm((prev) => ({ ...prev, [k]: v }))
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -85,6 +174,77 @@ export function ProcedureDetail() {
             {procedure.date} · {procedure.doctor}
           </p>
         </div>
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" onClick={handleEditOpen}>
+              <Pencil className="w-4 h-4 mr-1" />수정
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>시술기록 수정</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>시술일</Label>
+                  <Input type="date" value={form.date} onChange={(e) => set('date', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>시술명 *</Label>
+                  <Input value={form.procedureName} onChange={(e) => set('procedureName', e.target.value)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>담당의</Label>
+                  <Input value={form.doctor} onChange={(e) => set('doctor', e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label>마취방법</Label>
+                  <Select value={form.anesthesiaType} onValueChange={(v) => set('anesthesiaType', v)}>
+                    <SelectTrigger><SelectValue placeholder="선택" /></SelectTrigger>
+                    <SelectContent>
+                      {ANESTHESIA_TYPES.map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>소요시간</Label>
+                  <Input value={form.duration} onChange={(e) => set('duration', e.target.value)} placeholder="예: 40분" />
+                </div>
+                <div className="space-y-1">
+                  <Label>상태</Label>
+                  <Select value={form.status} onValueChange={(v) => set('status', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="scheduled">예정</SelectItem>
+                      <SelectItem value="completed">완료</SelectItem>
+                      <SelectItem value="cancelled">취소</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label>시술 상세</Label>
+                <Textarea value={form.details} onChange={(e) => set('details', e.target.value)} rows={2} />
+              </div>
+              <div className="space-y-1">
+                <Label>합병증</Label>
+                <Input value={form.complications} onChange={(e) => set('complications', e.target.value)} placeholder="없음" />
+              </div>
+              <div className="space-y-1">
+                <Label>수술 후 주의사항</Label>
+                <Textarea value={form.postOpInstructions} onChange={(e) => set('postOpInstructions', e.target.value)} rows={2} />
+              </div>
+              <Button onClick={handleEditSubmit} className="w-full">저장</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {patient && (
@@ -240,10 +400,26 @@ export function ProcedureDetail() {
               <p className="font-medium text-destructive">시술 기록 삭제</p>
               <p className="text-sm text-muted-foreground">이 작업은 되돌릴 수 없습니다.</p>
             </div>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              삭제
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  삭제
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>삭제 확인</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    이 시술 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>취소</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">삭제</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardContent>
       </Card>
