@@ -6,6 +6,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import {
   LayoutDashboard,
   CalendarDays,
+  BarChart3,
   LogOut,
   Menu,
   X,
@@ -16,6 +17,7 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { label: '대시보드', href: '/admin', icon: LayoutDashboard },
   { label: '예약 관리', href: '/admin/bookings', icon: CalendarDays },
+  { label: '마케팅 분석', href: '/admin/marketing', icon: BarChart3 },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

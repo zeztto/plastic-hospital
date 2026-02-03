@@ -9,6 +9,7 @@ import { AdminLogin } from '@/pages/admin/AdminLogin'
 import { Dashboard } from '@/pages/admin/Dashboard'
 import { BookingList } from '@/pages/admin/BookingList'
 import { BookingDetail } from '@/pages/admin/BookingDetail'
+import { MarketingDashboard } from '@/pages/admin/MarketingDashboard'
 import { AdminLayout } from '@/components/admin/AdminLayout'
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute'
 import { EMRLogin } from '@/pages/emr/EMRLogin'
@@ -48,6 +49,7 @@ function App() {
                   <Route index element={<Dashboard />} />
                   <Route path="bookings" element={<BookingList />} />
                   <Route path="bookings/:id" element={<BookingDetail />} />
+                  <Route path="marketing" element={<MarketingDashboard />} />
                 </Route>
 
                 {/* EMR: 전자의무기록 시스템 (의료진 전용) */}

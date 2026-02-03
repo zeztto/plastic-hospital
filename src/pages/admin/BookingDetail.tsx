@@ -6,12 +6,29 @@ import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useBookings } from '@/contexts/BookingContext'
 import {
   BOOKING_STATUS_LABELS,
   BOOKING_STATUS_COLORS,
+  ACQUISITION_SOURCE_LABELS,
+  JOURNEY_STAGE_LABELS,
+  JOURNEY_STAGE_ORDER,
+  JOURNEY_STAGE_COLORS,
   type BookingStatus,
+  type JourneyStage,
+  type AcquisitionSource,
 } from '@/types/booking'
+import { toast } from 'sonner'
 import {
   ArrowLeft,
   User,
@@ -25,14 +42,19 @@ import {
   XCircle,
   AlertCircle,
   Trash2,
+  Globe,
+  TrendingUp,
+  Megaphone,
+  ChevronRight,
 } from 'lucide-react'
 
 export function BookingDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { getById, updateStatus, updateMemo, deleteBooking } = useBookings()
+  const { getById, updateStatus, updateMemo, updateJourneyStage, deleteBooking } = useBookings()
   const [memo, setMemo] = useState('')
   const [memoSaved, setMemoSaved] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const booking = id ? getById(id) : undefined
 
@@ -65,14 +87,24 @@ export function BookingDetail() {
 
   const handleStatusChange = (status: BookingStatus) => {
     updateStatus(booking.id, status)
+    toast.success(`상태가 "${BOOKING_STATUS_LABELS[status]}"(으)로 변경되었습니다.`)
   }
 
-  const handleDelete = () => {
-    if (window.confirm(`${booking.name}님의 예약을 삭제하시겠습니까?`)) {
-      deleteBooking(booking.id)
-      navigate('/admin/bookings')
-    }
+  const handleJourneyAdvance = (stage: JourneyStage) => {
+    updateJourneyStage(booking.id, stage)
+    toast.success(`여정 단계가 "${JOURNEY_STAGE_LABELS[stage]}"(으)로 업데이트되었습니다.`)
   }
+
+  const handleDeleteConfirm = () => {
+    deleteBooking(booking.id)
+    toast.success('예약이 삭제되었습니다.')
+    navigate('/admin/bookings')
+  }
+
+  const currentStageIndex = JOURNEY_STAGE_ORDER.indexOf(booking.journeyStage)
+  const nextStage = currentStageIndex < JOURNEY_STAGE_ORDER.length - 1
+    ? JOURNEY_STAGE_ORDER[currentStageIndex + 1]
+    : null
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -154,6 +186,139 @@ export function BookingDetail() {
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Globe className="w-5 h-5 text-primary" />
+            마케팅 정보
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3">
+              <Megaphone className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm text-muted-foreground">유입 경로</p>
+                <p className="font-medium">
+                  {booking.source
+                    ? ACQUISITION_SOURCE_LABELS[booking.source as AcquisitionSource]
+                    : '-'}
+                </p>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">매체</p>
+              <p className="font-medium">{booking.medium || '-'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">캠페인</p>
+              <p className="font-medium">{booking.campaign || '-'}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              고객 여정
+            </CardTitle>
+            <Badge className={JOURNEY_STAGE_COLORS[booking.journeyStage]}>
+              {JOURNEY_STAGE_LABELS[booking.journeyStage]}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-1 overflow-x-auto pb-2">
+            {JOURNEY_STAGE_ORDER.map((stage, idx) => {
+              const stageIdx = JOURNEY_STAGE_ORDER.indexOf(booking.journeyStage)
+              const isPast = idx <= stageIdx
+              const isCurrent = idx === stageIdx
+              return (
+                <div key={stage} className="flex items-center">
+                  <div
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                      isCurrent
+                        ? 'bg-primary text-primary-foreground'
+                        : isPast
+                        ? 'bg-primary/20 text-primary'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {isPast && !isCurrent && <CheckCircle className="w-3 h-3" />}
+                    {JOURNEY_STAGE_LABELS[stage]}
+                  </div>
+                  {idx < JOURNEY_STAGE_ORDER.length - 1 && (
+                    <ChevronRight className={`w-4 h-4 mx-0.5 flex-shrink-0 ${isPast ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {nextStage && (
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleJourneyAdvance(nextStage)}
+              >
+                <ChevronRight className="w-4 h-4 mr-1" />
+                다음 단계: {JOURNEY_STAGE_LABELS[nextStage]}
+              </Button>
+              {currentStageIndex < JOURNEY_STAGE_ORDER.length - 2 && (
+                <div className="flex gap-1">
+                  {JOURNEY_STAGE_ORDER.slice(currentStageIndex + 2).map((s) => (
+                    <Button
+                      key={s}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleJourneyAdvance(s)}
+                      className="text-xs"
+                    >
+                      {JOURNEY_STAGE_LABELS[s]}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {booking.journeyHistory && booking.journeyHistory.length > 0 && (
+            <>
+              <Separator />
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground">여정 이력</p>
+                <div className="relative pl-6">
+                  <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-border" />
+                  {booking.journeyHistory.map((event, idx) => (
+                    <div key={idx} className="relative pb-4 last:pb-0">
+                      <div className={`absolute left-[-18px] w-3 h-3 rounded-full border-2 ${
+                        idx === booking.journeyHistory.length - 1
+                          ? 'bg-primary border-primary'
+                          : 'bg-background border-muted-foreground/30'
+                      }`} />
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {JOURNEY_STAGE_LABELS[event.stage]}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(event.timestamp).toLocaleString('ko-KR')}
+                        </span>
+                      </div>
+                      {event.note && (
+                        <p className="text-sm text-muted-foreground mt-1">{event.note}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -242,13 +407,33 @@ export function BookingDetail() {
                 이 작업은 되돌릴 수 없습니다.
               </p>
             </div>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
               <Trash2 className="w-4 h-4 mr-2" />
               삭제
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>예약 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              {booking.name}님의 예약을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

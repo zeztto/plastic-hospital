@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useBookings } from '@/contexts/BookingContext'
-import { BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '@/types/booking'
+import {
+  BOOKING_STATUS_LABELS,
+  BOOKING_STATUS_COLORS,
+  ACQUISITION_SOURCE_LABELS,
+} from '@/types/booking'
 import {
   CalendarDays,
   Clock,
@@ -9,11 +13,14 @@ import {
   XCircle,
   Users,
   AlertCircle,
+  TrendingUp,
+  Target,
+  BarChart3,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export function Dashboard() {
-  const { stats, bookings } = useBookings()
+  const { stats, bookings, marketingStats } = useBookings()
 
   const todayBookings = bookings.filter(
     (b) => b.date === '2026-02-06'
@@ -90,6 +97,56 @@ export function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200">
+          <CardContent className="p-4 lg:p-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-purple-700" />
+              </div>
+              <div>
+                <p className="text-sm text-purple-600">전환율</p>
+                <p className="text-2xl font-bold text-purple-900">{marketingStats.conversionRate}%</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200">
+          <CardContent className="p-4 lg:p-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center">
+                <Target className="w-5 h-5 text-orange-700" />
+              </div>
+              <div>
+                <p className="text-sm text-orange-600">최다 유입 채널</p>
+                <p className="text-2xl font-bold text-orange-900">
+                  {marketingStats.topSource
+                    ? ACQUISITION_SOURCE_LABELS[marketingStats.topSource]
+                    : '-'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Link to="/admin/marketing" className="block">
+          <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-200 hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardContent className="p-4 lg:p-6 flex items-center justify-between h-full">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-200 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-indigo-700" />
+                </div>
+                <div>
+                  <p className="text-sm text-indigo-600">마케팅 분석</p>
+                  <p className="text-sm font-medium text-indigo-900">상세 보기 →</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

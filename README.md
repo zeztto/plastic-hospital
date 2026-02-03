@@ -1,52 +1,61 @@
-# 뷰티플 성형외과 웹사이트
+# 뷰티플 성형외과
 
-강남 프리미엄 성형외과 병원을 위한 모던하고 세련된 반응형 웹사이트입니다.
+강남 프리미엄 성형외과 병원을 위한 올인원 웹 플랫폼입니다.
+고객용 웹사이트, CRM(예약/마케팅 관리), EMR(전자의무기록) 세 가지 시스템을 통합 제공합니다.
 
 ## 기술 스택
 
 - **프레임워크**: React 19 + TypeScript
 - **빌드 도구**: Vite 7
 - **스타일링**: Tailwind CSS v4
-- **UI 컴포넌트**: Shadcn UI
+- **UI 컴포넌트**: Shadcn UI (Radix UI 기반)
+- **차트**: Recharts
+- **알림**: Sonner (토스트)
 - **아이콘**: Lucide React
 - **라우팅**: React Router v7
 - **폰트**: Pretendard (한글 웹폰트)
-- **데이터 저장**: localStorage
+- **데이터 저장**: localStorage (백엔드 없음)
+
+## 시스템 구성
+
+| 시스템 | 경로 | 비밀번호 | 설명 |
+|--------|------|----------|------|
+| 고객 웹사이트 | `/` | 없음 | 병원 소개 + 온라인 예약 |
+| CRM | `/admin` | `beauty1234` | 예약 관리 + 마케팅 분석 |
+| EMR | `/emr` | `emr5678` | 전자의무기록 (환자/진료/시술/처방) |
 
 ## 주요 기능
 
 ### 고객용 웹사이트 (`/`)
-- 반응형 디자인 (모바일, 태블릿, 데스크톱)
-- 부드러운 스크롤 네비게이션
-- 모바일 햄버거 메뉴
-- **온라인 예약 시스템** - 날짜/시간 선택, 시술 종류 선택
-- Before/After 갤러리 (탭 기반)
-- FAQ 아코디언
 
-### 관리자 대시보드 (`/admin`)
-- **비밀번호 인증** 로그인 시스템
-- **대시보드** - 전체 통계, 오늘 예약 현황, 다가오는 예약
-- **예약 관리** - 테이블 뷰, 검색, 상태별 필터링
-- **예약 상세** - 상태 변경 (대기중/확인됨/완료/취소), 관리자 메모
-- **예약 삭제** 기능
+- 반응형 디자인 (모바일/태블릿/데스크톱)
+- 부드러운 스크롤 네비게이션 + 모바일 햄버거 메뉴
+- 8개 섹션: 히어로, 시술 소개, 의료진, 전후 사진, 고객 후기, 오시는 길, 상담 예약, FAQ
+- **온라인 예약 시스템** — 유입 경로(어떻게 알게 되셨나요?) 수집 + UTM 파라미터 자동 캡처
 
-## 페이지 구성
+### CRM — 예약 관리 시스템 (`/admin`)
 
-### 고객용 페이지
-1. 히어로 섹션 - 병원 슬로건 및 CTA 버튼
-2. 시술 소개 - 8가지 주요 시술 카테고리
-3. 의료진 소개 - 전문의 프로필 및 경력
-4. 전후 사진 - 시술별 Before/After 갤러리
-5. 고객 후기 - 실제 시술 후기
-6. 오시는 길 - 위치, 연락처, 진료시간
-7. 상담 예약 - 온라인 예약 신청 폼
-8. FAQ - 자주 묻는 질문
+- **대시보드** — 예약 통계 (전체/대기중/확인됨/취소됨), 전환율, 최다 유입 채널, 오늘의 예약, 다가오는 예약
+- **예약 관리** — 테이블 뷰, 검색(이름/연락처/시술/유입경로), 상태별 필터, 유입경로 컬럼
+- **예약 상세** — 고객 정보, 상태 변경, 관리자 메모, 마케팅 정보(유입경로/매체/캠페인), 고객 여정 관리
+- **마케팅 분석** (`/admin/marketing`) — 유입 채널별 바/파이 차트, 고객 여정 퍼널, 일별 예약 추이, 캠페인 성과 테이블, 채널별 전환 성과
 
-### 관리자 페이지
-1. `/admin/login` - 관리자 로그인
-2. `/admin` - 대시보드 (통계, 오늘 예약, 다가오는 예약)
-3. `/admin/bookings` - 예약 목록 (검색, 필터, 상태 관리)
-4. `/admin/bookings/:id` - 예약 상세 (상태 변경, 메모)
+#### 마케팅 기능 상세
+
+- **유입 경로 추적**: 네이버, 인스타그램, 유튜브, 카카오톡, 지인소개, 블로그, 광고, 직접방문, 기타
+- **UTM 파라미터**: url query에서 `utm_source`, `utm_medium`, `utm_campaign` 자동 캡처
+- **고객 여정 6단계**: 문의 → 상담 → 시술예약 → 시술완료 → 사후관리 → 재방문
+- **여정 이력**: 각 단계 전환 시 타임스탬프 기록, 시각적 타임라인 표시
+
+### EMR — 전자의무기록 시스템 (`/emr`)
+
+- **대시보드** — 환자/진료기록/시술/처방전 통계, 최근 기록 바로가기
+- **환자 관리** — 환자 목록 (정렬/검색/페이지네이션), 신규 등록, 환자 차트 (기본정보/진료기록/시술기록/처방전 4탭)
+- **진료기록** — CRUD, 진단코드, 바이탈 사인, 상세 보기/편집
+- **시술기록** — CRUD, 상태 관리 (예정/완료/취소), 필터링
+- **처방전** — CRUD, 약물 추가/삭제, 알러지 경고
+- 전체 목록 페이지에 정렬/페이지네이션(10건/페이지) 적용
+- 모든 삭제 동작은 AlertDialog 사용, CRUD 완료 시 토스트 알림
 
 ## 시작하기
 
@@ -55,15 +64,10 @@
 - Node.js 18.0.0 이상
 - npm 9.0.0 이상
 
-### 설치
+### 설치 및 실행
 
 ```bash
 npm install
-```
-
-### 개발 서버 실행
-
-```bash
 npm run dev
 ```
 
@@ -75,74 +79,94 @@ npm run dev
 npm run build
 ```
 
-### 관리자 접속
+### 접속 정보
 
-1. `/admin/login` 경로로 접속
-2. 비밀번호: `beauty1234`
-3. 대시보드에서 예약 관리
+| 시스템 | URL | 비밀번호 |
+|--------|-----|----------|
+| CRM | `/admin/login` | `beauty1234` |
+| EMR | `/emr/login` | `emr5678` |
 
 ## 프로젝트 구조
 
 ```
 src/
+├── App.tsx                          # 전체 라우팅
 ├── components/
-│   ├── admin/           # 관리자 컴포넌트
-│   │   ├── AdminLayout.tsx
+│   ├── admin/                       # CRM 레이아웃
+│   │   ├── AdminLayout.tsx          #   사이드바 (대시보드/예약관리/마케팅분석)
 │   │   └── ProtectedRoute.tsx
-│   ├── layout/          # 레이아웃 컴포넌트
+│   ├── emr/                         # EMR 레이아웃
+│   │   ├── EMRLayout.tsx            #   사이드바 (대시보드/환자/진료/시술/처방전)
+│   │   └── EMRProtectedRoute.tsx
+│   ├── layout/                      # 공개 사이트 레이아웃
 │   │   ├── Header.tsx
 │   │   ├── Footer.tsx
 │   │   └── Layout.tsx
-│   ├── sections/        # 페이지 섹션 컴포넌트
+│   ├── sections/                    # 공개 사이트 섹션
 │   │   ├── Hero.tsx
 │   │   ├── Services.tsx
 │   │   ├── Doctors.tsx
 │   │   ├── BeforeAfter.tsx
 │   │   ├── Reviews.tsx
 │   │   ├── Location.tsx
-│   │   ├── Booking.tsx
+│   │   ├── Booking.tsx              #   예약 폼 (유입경로 + UTM)
 │   │   └── FAQ.tsx
-│   └── ui/              # Shadcn UI 컴포넌트
+│   └── ui/                          # Shadcn UI 컴포넌트
 ├── contexts/
-│   ├── BookingContext.tsx    # 예약 상태 관리
-│   └── AdminAuthContext.tsx  # 관리자 인증
+│   ├── AdminAuthContext.tsx          # CRM 인증 (beauty1234)
+│   ├── BookingContext.tsx            # CRM 예약/마케팅 상태
+│   ├── EMRAuthContext.tsx            # EMR 인증 (emr5678)
+│   └── EMRContext.tsx               # EMR 환자/기록 상태
 ├── data/
-│   └── content.ts       # 정적 콘텐츠 데이터
+│   └── content.ts                   # 정적 콘텐츠
 ├── pages/
-│   ├── Home.tsx         # 고객용 홈페이지
-│   └── admin/           # 관리자 페이지
-│       ├── AdminLogin.tsx
-│       ├── Dashboard.tsx
-│       ├── BookingList.tsx
-│       └── BookingDetail.tsx
+│   ├── Home.tsx                     # 공개 웹사이트
+│   ├── admin/                       # CRM 페이지
+│   │   ├── AdminLogin.tsx
+│   │   ├── Dashboard.tsx            #   대시보드 (통계 + 마케팅 요약)
+│   │   ├── BookingList.tsx          #   예약 목록 (유입경로 컬럼)
+│   │   ├── BookingDetail.tsx        #   예약 상세 (마케팅 + 여정)
+│   │   └── MarketingDashboard.tsx   #   마케팅 분석 (차트/퍼널/캠페인)
+│   ├── emr/
+│   │   ├── EMRLogin.tsx
+│   │   └── EMRDashboard.tsx
+│   └── admin/emr/                   # EMR 페이지
+│       ├── PatientList.tsx
+│       ├── PatientChart.tsx
+│       ├── NewPatient.tsx
+│       ├── RecordsList.tsx
+│       ├── RecordDetail.tsx
+│       ├── ProceduresList.tsx
+│       ├── ProcedureDetail.tsx
+│       ├── PrescriptionsList.tsx
+│       └── PrescriptionDetail.tsx
 ├── services/
-│   └── bookingStorage.ts    # localStorage CRUD
+│   ├── bookingStorage.ts            # CRM localStorage CRUD + 마케팅
+│   └── emrStorage.ts               # EMR localStorage CRUD
 ├── types/
-│   └── booking.ts       # 예약 타입 정의
-├── lib/
-│   └── utils.ts
-├── App.tsx              # 라우터 설정
-├── main.tsx
-└── index.css
+│   ├── booking.ts                   # CRM 타입 (예약 + 마케팅 + 여정)
+│   └── emr.ts                      # EMR 타입 (환자/진료/시술/처방)
+└── lib/
+    └── utils.ts
 ```
+
+## 데모 데이터
+
+최초 접속 시 자동 생성됩니다.
+
+| 시스템 | 데이터 |
+|--------|--------|
+| CRM | 12건 예약 (다양한 유입경로/캠페인/여정 단계) |
+| EMR | 8명 환자, 7건 진료기록, 5건 시술기록, 3건 처방전 |
 
 ## 커스터마이징
 
-### 색상 테마 변경
-
-`src/index.css` 파일의 CSS 변수를 수정하여 색상 테마를 변경할 수 있습니다.
-
-### 콘텐츠 수정
-
-`src/data/content.ts` 파일에서 병원 정보, 서비스, 의료진, 후기 등의 콘텐츠를 수정할 수 있습니다.
-
-### 관리자 비밀번호 변경
-
-`src/contexts/AdminAuthContext.tsx` 파일에서 `ADMIN_PASSWORD` 상수를 변경합니다.
-
-### 데모 데이터
-
-최초 접속 시 7건의 데모 예약 데이터가 자동으로 생성됩니다. `src/services/bookingStorage.ts`의 `seedDemoData()` 함수에서 수정할 수 있습니다.
+- **색상 테마**: `src/index.css`의 CSS 변수
+- **콘텐츠**: `src/data/content.ts`
+- **CRM 비밀번호**: `src/contexts/AdminAuthContext.tsx` → `ADMIN_PASSWORD`
+- **EMR 비밀번호**: `src/contexts/EMRAuthContext.tsx` → `EMR_PASSWORD`
+- **CRM 데모 데이터**: `src/services/bookingStorage.ts` → `seedDemoData()`
+- **EMR 데모 데이터**: `src/services/emrStorage.ts` → `seedDemoData()`
 
 ## 라이선스
 

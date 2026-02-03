@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -6,10 +6,26 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Calendar, Send, CheckCircle } from 'lucide-react'
 import { useBookings } from '@/contexts/BookingContext'
-import { PROCEDURES, TIME_SLOTS } from '@/types/booking'
+import {
+  PROCEDURES,
+  TIME_SLOTS,
+  ACQUISITION_SOURCES,
+  ACQUISITION_SOURCE_LABELS,
+  type AcquisitionSource,
+} from '@/types/booking'
+
+function getUtmParams(): { source: string; medium: string; campaign: string } {
+  const params = new URLSearchParams(window.location.search)
+  return {
+    source: params.get('utm_source') || '',
+    medium: params.get('utm_medium') || '',
+    campaign: params.get('utm_campaign') || '',
+  }
+}
 
 export function Booking() {
   const { create } = useBookings()
+  const [utmParams, setUtmParams] = useState({ source: '', medium: '', campaign: '' })
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -17,12 +33,35 @@ export function Booking() {
     date: '',
     time: '',
     message: '',
+    source: '' as AcquisitionSource | '',
     agreed: false,
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
 
+  useEffect(() => {
+    setUtmParams(getUtmParams())
+  }, [])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const sourceValue: AcquisitionSource = formData.source || 'other'
+
+    let medium = utmParams.medium
+    if (!medium) {
+      const mediumMap: Partial<Record<AcquisitionSource, string>> = {
+        naver: 'search',
+        instagram: 'social',
+        youtube: 'video',
+        kakao: 'message',
+        referral: 'word_of_mouth',
+        blog: 'content',
+        ad: 'paid',
+        walk_in: 'direct',
+        other: 'unknown',
+      }
+      medium = mediumMap[sourceValue] || 'unknown'
+    }
+
     create({
       name: formData.name,
       phone: formData.phone,
@@ -30,6 +69,9 @@ export function Booking() {
       date: formData.date,
       time: formData.time,
       message: formData.message,
+      source: sourceValue,
+      medium,
+      campaign: utmParams.campaign,
     })
     setIsSubmitted(true)
     setTimeout(() => {
@@ -41,6 +83,7 @@ export function Booking() {
         date: '',
         time: '',
         message: '',
+        source: '',
         agreed: false,
       })
     }, 4000)
@@ -168,6 +211,24 @@ export function Booking() {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="source">어떻게 알게 되셨나요?</Label>
+                  <select
+                    id="source"
+                    name="source"
+                    value={formData.source}
+                    onChange={handleChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">선택해주세요 (선택사항)</option>
+                    {ACQUISITION_SOURCES.map((src) => (
+                      <option key={src} value={src}>
+                        {ACQUISITION_SOURCE_LABELS[src]}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-2">

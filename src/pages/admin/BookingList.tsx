@@ -18,11 +18,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useBookings } from '@/contexts/BookingContext'
 import {
   BOOKING_STATUS_LABELS,
   BOOKING_STATUS_COLORS,
+  ACQUISITION_SOURCE_LABELS,
   type BookingStatus,
+  type AcquisitionSource,
 } from '@/types/booking'
 import {
   Search,
@@ -47,6 +59,7 @@ export function BookingList() {
   const { bookings, updateStatus, deleteBooking } = useBookings()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all')
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   const filtered = useMemo(() => {
     return bookings.filter((b) => {
@@ -55,15 +68,17 @@ export function BookingList() {
         b.name.includes(search) ||
         b.phone.includes(search) ||
         b.procedure.includes(search) ||
-        b.id.toLowerCase().includes(search.toLowerCase())
+        b.id.toLowerCase().includes(search.toLowerCase()) ||
+        (b.source && ACQUISITION_SOURCE_LABELS[b.source]?.includes(search))
       const matchesStatus = statusFilter === 'all' || b.status === statusFilter
       return matchesSearch && matchesStatus
     })
   }, [bookings, search, statusFilter])
 
-  const handleDelete = (id: string, name: string) => {
-    if (window.confirm(`${name}님의 예약을 삭제하시겠습니까?`)) {
-      deleteBooking(id)
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      deleteBooking(deleteTarget.id)
+      setDeleteTarget(null)
     }
   }
 
@@ -87,7 +102,7 @@ export function BookingList() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="이름, 연락처, 시술 검색..."
+                  placeholder="이름, 연락처, 시술, 유입경로 검색..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9 w-full sm:w-64"
@@ -131,6 +146,7 @@ export function BookingList() {
                     <TableHead>이름</TableHead>
                     <TableHead>연락처</TableHead>
                     <TableHead>시술</TableHead>
+                    <TableHead>유입경로</TableHead>
                     <TableHead>예약일시</TableHead>
                     <TableHead>상태</TableHead>
                     <TableHead className="w-[80px]">관리</TableHead>
@@ -145,6 +161,15 @@ export function BookingList() {
                       <TableCell className="font-medium">{booking.name}</TableCell>
                       <TableCell>{booking.phone}</TableCell>
                       <TableCell>{booking.procedure}</TableCell>
+                      <TableCell>
+                        {booking.source ? (
+                          <Badge variant="outline" className="text-xs">
+                            {ACQUISITION_SOURCE_LABELS[booking.source as AcquisitionSource] || booking.source}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         {booking.date} {booking.time}
                       </TableCell>
@@ -201,7 +226,7 @@ export function BookingList() {
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() =>
-                                handleDelete(booking.id, booking.name)
+                                setDeleteTarget({ id: booking.id, name: booking.name })
                               }
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
@@ -218,6 +243,26 @@ export function BookingList() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>예약 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.name}님의 예약을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
