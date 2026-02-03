@@ -43,6 +43,23 @@
 - **팔로업 관리** (`/admin/follow-ups`) — 시술 후 경과 확인/재방문 안내/상담 후 확인 등 자동 리스트업, 상태별 필터, 기한 초과 알림, 완료/건너뛰기 처리
 - **스케줄 관리** (`/admin/schedule`) — 주간 캘린더 뷰, 진료의별 컬럼, 시간 슬롯 그리드(09:00-18:00), 드래그앤드롭 예약 변경, 예약 막기(TimeBlock) 생성/삭제
 - **마케팅 분석** (`/admin/marketing`) — 유입 채널별 바/파이 차트, 고객 여정 퍼널, 일별 예약 추이, 캠페인 성과 테이블, 채널별 전환 성과
+- **메시지 관리** (`/admin/messages`) — 메시지 템플릿(카카오/SMS/LMS) CRUD, 고객 선택 후 발송, 발송 이력 조회, 자동 발송 규칙 관리
+- **병원 운영** (`/admin/operations`) — 공지사항 CRUD (우선순위/읽음 상태), 전화 연동 (고객 자동 매칭), 네이버 예약 동기화
+
+#### 메시지 관리 기능 상세
+
+- **템플릿 관리**: 카테고리별(환영/감사/예약확인/예약리마인드/시술후/팔로업/프로모션/커스텀) 메시지 템플릿 CRUD
+- **채널 지원**: 카카오알림톡, SMS, LMS 채널 선택
+- **변수 치환**: `{{고객명}}`, `{{날짜}}`, `{{시간}}`, `{{시술명}}` 자동 치환
+- **발송**: 템플릿 선택 → 고객 검색/선택 → 미리보기 → 개별/대량 발송
+- **발송 이력**: 발송완료/발송실패/발송대기 상태 관리, 검색/필터/페이지네이션
+- **자동 발송**: 예약 확정 시, 예약 1일 전, 시술 완료 시, 시술 3일 후 트리거 규칙
+
+#### 병원 운영 기능 상세
+
+- **공지사항**: 우선순위(일반/중요/긴급) 관리, 읽음/안읽음 상태, 미읽음 카운트 배지
+- **전화 연동**: 전화번호 입력 → 고객DB 자동 매칭 → 고객 정보 팝업 (등급/예약 이력), 미등록 고객 신규 등록 안내
+- **네이버 예약 동기화**: 네이버 예약 목록 조회, 개별/일괄 동기화, 동기화 상태(완료/대기/충돌) 관리
 
 #### 고객 관리 기능 상세
 
@@ -112,7 +129,7 @@ src/
 ├── App.tsx                          # 전체 라우팅
 ├── components/
 │   ├── admin/                       # CRM 레이아웃
-│   │   ├── AdminLayout.tsx          #   사이드바 (대시보드/예약/고객/팔로업/스케줄/마케팅)
+│   │   ├── AdminLayout.tsx          #   사이드바 (대시보드/예약/고객/팔로업/스케줄/메시지/병원운영/마케팅)
 │   │   └── ProtectedRoute.tsx
 │   ├── emr/                         # EMR 레이아웃
 │   │   ├── EMRLayout.tsx            #   사이드바 (대시보드/환자/진료/시술/처방전)
@@ -135,6 +152,7 @@ src/
 │   ├── AdminAuthContext.tsx          # CRM 인증 (beauty1234)
 │   ├── BookingContext.tsx            # CRM 예약/마케팅 상태
 │   ├── CustomerContext.tsx           # CRM 고객/팔로업 상태
+│   ├── MessageContext.tsx            # CRM 메시지 템플릿/발송 상태
 │   ├── EMRAuthContext.tsx            # EMR 인증 (emr5678)
 │   └── EMRContext.tsx               # EMR 환자/기록 상태
 ├── data/
@@ -150,6 +168,8 @@ src/
 │   │   ├── CustomerDetail.tsx       #   고객 상세 (등급/메모/팔로업)
 │   │   ├── FollowUpList.tsx         #   팔로업 관리 (자동 리스트업)
 │   │   ├── ScheduleCalendar.tsx     #   스케줄 (주간 캘린더/드래그앤드롭)
+│   │   ├── MessageCenter.tsx        #   메시지 관리 (템플릿/발송/이력/자동발송)
+│   │   ├── Operations.tsx           #   병원 운영 (공지사항/전화연동/네이버예약)
 │   │   └── MarketingDashboard.tsx   #   마케팅 분석 (차트/퍼널/캠페인)
 │   ├── emr/
 │   │   ├── EMRLogin.tsx
@@ -168,11 +188,15 @@ src/
 │   ├── bookingStorage.ts            # CRM localStorage CRUD + 마케팅
 │   ├── customerStorage.ts           # CRM 고객/팔로업 localStorage CRUD
 │   ├── scheduleStorage.ts           # CRM 스케줄/타임블록 localStorage CRUD
+│   ├── messageStorage.ts            # CRM 메시지 템플릿/발송 localStorage CRUD
+│   ├── operationStorage.ts          # CRM 공지사항/네이버예약/전화 localStorage CRUD
 │   └── emrStorage.ts               # EMR localStorage CRUD
 ├── types/
 │   ├── booking.ts                   # CRM 타입 (예약 + 마케팅 + 여정)
 │   ├── customer.ts                  # CRM 타입 (고객등급 + 팔로업)
 │   ├── schedule.ts                  # CRM 타입 (진료의 + 타임블록)
+│   ├── message.ts                   # CRM 타입 (메시지 템플릿/발송/자동발송)
+│   ├── operation.ts                 # CRM 타입 (공지사항/네이버예약/전화)
 │   └── emr.ts                      # EMR 타입 (환자/진료/시술/처방)
 └── lib/
     └── utils.ts
@@ -188,6 +212,8 @@ src/
 | CRM 고객 | 12명 (VIP 1명, 골드 2명, 실버 1명, 일반/신규 8명) |
 | CRM 팔로업 | 시술 후 경과 확인, 재방문 안내, 상담 후 확인 등 자동 생성 |
 | CRM 스케줄 | 타임블록 3건 (점심시간, 학회 참석, 개인 사유) |
+| CRM 메시지 | 8개 템플릿, 5건 발송 이력, 4개 자동 발송 규칙 |
+| CRM 운영 | 4건 공지사항, 4건 네이버 예약, 4건 전화 기록 |
 | EMR | 8명 환자, 7건 진료기록, 5건 시술기록, 3건 처방전 |
 
 ## CRM 라우트
@@ -201,6 +227,8 @@ src/
 | `/admin/customers/:id` | 고객 상세 | 등급/메모/팔로업 관리 |
 | `/admin/follow-ups` | 팔로업 관리 | 자동 리스트업 + 상태 처리 |
 | `/admin/schedule` | 스케줄 관리 | 주간 캘린더 + 드래그앤드롭 |
+| `/admin/messages` | 메시지 관리 | 템플릿 + 발송 + 이력 + 자동발송 |
+| `/admin/operations` | 병원 운영 | 공지사항 + 전화연동 + 네이버예약 |
 | `/admin/marketing` | 마케팅 분석 | 차트 + 퍼널 + 캠페인 성과 |
 
 ## 커스터마이징
@@ -212,6 +240,8 @@ src/
 - **CRM 데모 데이터**: `src/services/bookingStorage.ts` → `seedDemoData()`
 - **고객 데모 데이터**: `src/services/customerStorage.ts` → `seedDemoData()`
 - **스케줄 데모 데이터**: `src/services/scheduleStorage.ts` → `seedDemoData()`
+- **메시지 데모 데이터**: `src/services/messageStorage.ts` → `seedDemoData()`
+- **운영 데모 데이터**: `src/services/operationStorage.ts` → `seedDemoData()`
 - **EMR 데모 데이터**: `src/services/emrStorage.ts` → `seedDemoData()`
 
 ## 라이선스

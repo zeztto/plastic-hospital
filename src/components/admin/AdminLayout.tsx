@@ -14,6 +14,8 @@ import {
   Menu,
   X,
   Home,
+  MessageSquare,
+  Building2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,6 +25,8 @@ const navItems = [
   { label: '고객 관리', href: '/admin/customers', icon: Users },
   { label: '팔로업', href: '/admin/follow-ups', icon: Clock },
   { label: '스케줄', href: '/admin/schedule', icon: CalendarClock },
+  { label: '메시지', href: '/admin/messages', icon: MessageSquare },
+  { label: '병원 운영', href: '/admin/operations', icon: Building2 },
   { label: '마케팅 분석', href: '/admin/marketing', icon: BarChart3 },
 ]
 

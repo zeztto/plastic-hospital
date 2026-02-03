@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { BookingProvider } from '@/contexts/BookingContext'
 import { CustomerProvider } from '@/contexts/CustomerContext'
+import { MessageProvider } from '@/contexts/MessageContext'
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext'
 import { EMRAuthProvider } from '@/contexts/EMRAuthContext'
 import { EMRProvider } from '@/contexts/EMRContext'
@@ -15,6 +16,8 @@ import { CustomerList } from '@/pages/admin/CustomerList'
 import { CustomerDetail } from '@/pages/admin/CustomerDetail'
 import { FollowUpList } from '@/pages/admin/FollowUpList'
 import { ScheduleCalendar } from '@/pages/admin/ScheduleCalendar'
+import { MessageCenter } from '@/pages/admin/MessageCenter'
+import { Operations } from '@/pages/admin/Operations'
 import { AdminLayout } from '@/components/admin/AdminLayout'
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute'
 import { EMRLogin } from '@/pages/emr/EMRLogin'
@@ -38,6 +41,7 @@ function App() {
         <EMRAuthProvider>
             <BookingProvider>
               <CustomerProvider>
+              <MessageProvider>
               <EMRProvider>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -59,6 +63,8 @@ function App() {
                   <Route path="customers/:id" element={<CustomerDetail />} />
                   <Route path="follow-ups" element={<FollowUpList />} />
                   <Route path="schedule" element={<ScheduleCalendar />} />
+                  <Route path="messages" element={<MessageCenter />} />
+                  <Route path="operations" element={<Operations />} />
                   <Route path="marketing" element={<MarketingDashboard />} />
                 </Route>
 
@@ -86,6 +92,7 @@ function App() {
               </Routes>
               <Toaster richColors position="top-right" />
               </EMRProvider>
+              </MessageProvider>
               </CustomerProvider>
           </BookingProvider>
         </EMRAuthProvider>
