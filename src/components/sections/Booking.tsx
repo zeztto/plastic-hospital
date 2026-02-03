@@ -4,26 +4,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Calendar, Clock, Send } from 'lucide-react'
-
-const procedures = [
-  '눈성형',
-  '코성형',
-  '안면윤곽',
-  '리프팅',
-  '가슴성형',
-  '지방흡입',
-  '피부시술',
-  '쁘띠성형',
-  '기타',
-]
+import { Calendar, Send, CheckCircle } from 'lucide-react'
+import { useBookings } from '@/contexts/BookingContext'
+import { PROCEDURES, TIME_SLOTS } from '@/types/booking'
 
 export function Booking() {
+  const { create } = useBookings()
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     procedure: '',
     date: '',
+    time: '',
     message: '',
     agreed: false,
   })
@@ -31,6 +23,14 @@ export function Booking() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    create({
+      name: formData.name,
+      phone: formData.phone,
+      procedure: formData.procedure,
+      date: formData.date,
+      time: formData.time,
+      message: formData.message,
+    })
     setIsSubmitted(true)
     setTimeout(() => {
       setIsSubmitted(false)
@@ -39,10 +39,11 @@ export function Booking() {
         phone: '',
         procedure: '',
         date: '',
+        time: '',
         message: '',
         agreed: false,
       })
-    }, 3000)
+    }, 4000)
   }
 
   const handleChange = (
@@ -80,7 +81,7 @@ export function Booking() {
             {isSubmitted ? (
               <div className="py-12 text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Send className="w-8 h-8 text-green-600" />
+                  <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">
                   예약 신청이 완료되었습니다
@@ -117,38 +118,55 @@ export function Booking() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="procedure">관심 시술 *</Label>
+                  <select
+                    id="procedure"
+                    name="procedure"
+                    value={formData.procedure}
+                    onChange={handleChange}
+                    required
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">시술을 선택해주세요</option>
+                    {PROCEDURES.map((proc) => (
+                      <option key={proc} value={proc}>
+                        {proc}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="procedure">관심 시술 *</Label>
+                    <Label htmlFor="date">희망 상담일 *</Label>
+                    <Input
+                      id="date"
+                      name="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      min="2026-02-06"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="time">희망 시간 *</Label>
                     <select
-                      id="procedure"
-                      name="procedure"
-                      value={formData.procedure}
+                      id="time"
+                      name="time"
+                      value={formData.time}
                       onChange={handleChange}
                       required
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
-                      <option value="">선택해주세요</option>
-                      {procedures.map((proc) => (
-                        <option key={proc} value={proc}>
-                          {proc}
+                      <option value="">시간을 선택해주세요</option>
+                      {TIME_SLOTS.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {slot}
                         </option>
                       ))}
                     </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="date">희망 상담일</Label>
-                    <div className="relative">
-                      <Input
-                        id="date"
-                        name="date"
-                        type="date"
-                        value={formData.date}
-                        onChange={handleChange}
-                        min={new Date().toISOString().split('T')[0]}
-                      />
-                      <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                    </div>
                   </div>
                 </div>
 
@@ -175,16 +193,17 @@ export function Booking() {
                     className="mt-1"
                   />
                   <Label htmlFor="agreed" className="text-sm text-muted-foreground font-normal">
-                    개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 목적으로만 사용되며, 
+                    개인정보 수집 및 이용에 동의합니다. 수집된 정보는 상담 목적으로만 사용되며,
                     상담 완료 후 파기됩니다.
                   </Label>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
+                <Button
+                  type="submit"
+                  size="lg"
                   className="w-full bg-primary hover:bg-primary/90"
                 >
+                  <Send className="w-4 h-4 mr-2" />
                   예약 신청하기
                 </Button>
               </form>
