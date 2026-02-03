@@ -117,7 +117,14 @@ export function RecordsList() {
                       <TableCell className="max-w-[200px] truncate">
                         {record.chiefComplaint}
                       </TableCell>
-                      <TableCell>{record.diagnosis}</TableCell>
+                      <TableCell>
+                        <Link
+                          to={`/emr/records/${record.id}`}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {record.diagnosis}
+                        </Link>
+                      </TableCell>
                       <TableCell className="font-mono text-xs">
                         {record.diagnosisCode}
                       </TableCell>

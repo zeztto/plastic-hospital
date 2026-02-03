@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -13,10 +14,11 @@ import {
 } from '@/components/ui/table'
 import { useEMR } from '@/contexts/EMRContext'
 import { GENDER_LABELS } from '@/types/emr'
-import { Search, Plus, Users, Eye } from 'lucide-react'
+import { Search, Plus, Users } from 'lucide-react'
 
 export function PatientList() {
   const { patients } = useEMR()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
   const filtered = useMemo(() => {
@@ -26,7 +28,9 @@ export function PatientList() {
       (p) =>
         p.name.includes(search) ||
         p.chartNumber.toLowerCase().includes(q) ||
-        p.phone.includes(search)
+        p.phone.includes(search) ||
+        p.bloodType.toLowerCase().includes(q) ||
+        p.allergies.some((a) => a.includes(search))
     )
   }, [patients, search])
 
@@ -59,10 +63,10 @@ export function PatientList() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="이름, 차트번호, 연락처 검색..."
+                placeholder="이름, 차트번호, 연락처, 혈액형 검색..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 w-full sm:w-64"
+                className="pl-9 w-full sm:w-72"
               />
             </div>
           </div>
@@ -84,35 +88,48 @@ export function PatientList() {
                     <TableHead>이름</TableHead>
                     <TableHead>생년월일</TableHead>
                     <TableHead>성별</TableHead>
+                    <TableHead>혈액형</TableHead>
                     <TableHead>연락처</TableHead>
+                    <TableHead>알레르기</TableHead>
                     <TableHead>등록일</TableHead>
-                    <TableHead className="w-[80px]">관리</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((patient) => (
-                    <TableRow key={patient.id}>
+                    <TableRow
+                      key={patient.id}
+                      onClick={() => navigate(`/emr/patients/${patient.id}`)}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
                       <TableCell className="font-mono text-xs">
                         {patient.chartNumber}
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-primary">
                         {patient.name}
                       </TableCell>
                       <TableCell>{patient.birthDate}</TableCell>
                       <TableCell>
                         {GENDER_LABELS[patient.gender]}
                       </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{patient.bloodType || '-'}</Badge>
+                      </TableCell>
                       <TableCell>{patient.phone}</TableCell>
                       <TableCell>
-                        {patient.registeredAt.slice(0, 10)}
+                        {patient.allergies.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {patient.allergies.map((a) => (
+                              <Badge key={a} variant="destructive" className="text-[10px]">
+                                {a}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">없음</span>
+                        )}
                       </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/emr/patients/${patient.id}`}>
-                            <Eye className="w-4 h-4 mr-1" />
-                            보기
-                          </Link>
-                        </Button>
+                      <TableCell className="text-muted-foreground text-xs">
+                        {patient.registeredAt.slice(0, 10)}
                       </TableCell>
                     </TableRow>
                   ))}

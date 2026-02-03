@@ -58,6 +58,11 @@ export const emrStorage = {
   },
 
   // ── Medical Records ──
+  getAllRecords(): MedicalRecord[] {
+    return load<MedicalRecord>(RECORDS_KEY).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+  },
   getRecordsByPatient(patientId: string): MedicalRecord[] {
     return load<MedicalRecord>(RECORDS_KEY)
       .filter((r) => r.patientId === patientId)
@@ -73,12 +78,35 @@ export const emrStorage = {
     persist(RECORDS_KEY, all)
     return record
   },
+  updateRecord(id: string, data: Partial<MedicalRecord>): MedicalRecord | undefined {
+    const all = load<MedicalRecord>(RECORDS_KEY)
+    const idx = all.findIndex((r) => r.id === id)
+    if (idx === -1) return undefined
+    all[idx] = { ...all[idx], ...data, id: all[idx].id, patientId: all[idx].patientId }
+    persist(RECORDS_KEY, all)
+    return all[idx]
+  },
+  deleteRecord(id: string): boolean {
+    const all = load<MedicalRecord>(RECORDS_KEY)
+    const filtered = all.filter((r) => r.id !== id)
+    if (filtered.length === all.length) return false
+    persist(RECORDS_KEY, filtered)
+    return true
+  },
 
   // ── Procedures ──
+  getAllProcedures(): ProcedureRecord[] {
+    return load<ProcedureRecord>(PROCEDURES_KEY).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+  },
   getProceduresByPatient(patientId: string): ProcedureRecord[] {
     return load<ProcedureRecord>(PROCEDURES_KEY)
       .filter((p) => p.patientId === patientId)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  },
+  getProcedureById(id: string): ProcedureRecord | undefined {
+    return load<ProcedureRecord>(PROCEDURES_KEY).find((p) => p.id === id)
   },
   createProcedure(data: Omit<ProcedureRecord, 'id' | 'createdAt'>): ProcedureRecord {
     const all = load<ProcedureRecord>(PROCEDURES_KEY)
@@ -86,6 +114,14 @@ export const emrStorage = {
     all.push(proc)
     persist(PROCEDURES_KEY, all)
     return proc
+  },
+  updateProcedure(id: string, data: Partial<ProcedureRecord>): ProcedureRecord | undefined {
+    const all = load<ProcedureRecord>(PROCEDURES_KEY)
+    const idx = all.findIndex((p) => p.id === id)
+    if (idx === -1) return undefined
+    all[idx] = { ...all[idx], ...data, id: all[idx].id, patientId: all[idx].patientId }
+    persist(PROCEDURES_KEY, all)
+    return all[idx]
   },
   updateProcedureStatus(id: string, status: ProcedureStatus): ProcedureRecord | undefined {
     const all = load<ProcedureRecord>(PROCEDURES_KEY)
@@ -95,12 +131,27 @@ export const emrStorage = {
     persist(PROCEDURES_KEY, all)
     return all[idx]
   },
+  deleteProcedure(id: string): boolean {
+    const all = load<ProcedureRecord>(PROCEDURES_KEY)
+    const filtered = all.filter((p) => p.id !== id)
+    if (filtered.length === all.length) return false
+    persist(PROCEDURES_KEY, filtered)
+    return true
+  },
 
   // ── Prescriptions ──
+  getAllPrescriptions(): Prescription[] {
+    return load<Prescription>(PRESCRIPTIONS_KEY).sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+  },
   getPrescriptionsByPatient(patientId: string): Prescription[] {
     return load<Prescription>(PRESCRIPTIONS_KEY)
       .filter((p) => p.patientId === patientId)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  },
+  getPrescriptionById(id: string): Prescription | undefined {
+    return load<Prescription>(PRESCRIPTIONS_KEY).find((p) => p.id === id)
   },
   createPrescription(data: Omit<Prescription, 'id' | 'createdAt'>): Prescription {
     const all = load<Prescription>(PRESCRIPTIONS_KEY)
@@ -108,6 +159,13 @@ export const emrStorage = {
     all.push(rx)
     persist(PRESCRIPTIONS_KEY, all)
     return rx
+  },
+  deletePrescription(id: string): boolean {
+    const all = load<Prescription>(PRESCRIPTIONS_KEY)
+    const filtered = all.filter((p) => p.id !== id)
+    if (filtered.length === all.length) return false
+    persist(PRESCRIPTIONS_KEY, filtered)
+    return true
   },
 
   // ── Stats ──

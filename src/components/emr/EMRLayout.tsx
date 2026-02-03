@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   FileText,
+  Scissors,
   LogOut,
   Menu,
   X,
@@ -19,6 +20,7 @@ const navItems = [
   { label: '대시보드', href: '/emr', icon: LayoutDashboard },
   { label: '환자 관리', href: '/emr/patients', icon: Users },
   { label: '진료 기록', href: '/emr/records', icon: FileText },
+  { label: '시술 기록', href: '/emr/procedures', icon: Scissors },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

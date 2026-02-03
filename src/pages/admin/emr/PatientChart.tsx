@@ -275,50 +275,52 @@ function RecordsTab({
       ) : (
         <div className="space-y-4">
           {records.map((r) => (
-            <Card key={r.id}>
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">{r.diagnosis}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {r.date} · {r.doctorName} · {r.diagnosisCode}
-                    </p>
+            <Link key={r.id} to={`/emr/records/${r.id}`} className="block">
+              <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-semibold">{r.diagnosis}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {r.date} · {r.doctorName} · {r.diagnosisCode}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <p className="text-sm">
-                  <span className="text-muted-foreground">주소증:</span>{' '}
-                  {r.chiefComplaint}
-                </p>
-                {r.vitalSigns && (
-                  <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    {r.vitalSigns.bloodPressure && (
-                      <span>BP {r.vitalSigns.bloodPressure}</span>
-                    )}
-                    {r.vitalSigns.pulse > 0 && (
-                      <span>P {r.vitalSigns.pulse}bpm</span>
-                    )}
-                    {r.vitalSigns.temperature > 0 && (
-                      <span>T {r.vitalSigns.temperature}°C</span>
-                    )}
-                    {r.vitalSigns.weight > 0 && (
-                      <span>W {r.vitalSigns.weight}kg</span>
-                    )}
-                    {r.vitalSigns.height > 0 && (
-                      <span>H {r.vitalSigns.height}cm</span>
-                    )}
-                  </div>
-                )}
-                {r.treatmentPlan && (
                   <p className="text-sm">
-                    <span className="text-muted-foreground">치료계획:</span>{' '}
-                    {r.treatmentPlan}
+                    <span className="text-muted-foreground">주소증:</span>{' '}
+                    {r.chiefComplaint}
                   </p>
-                )}
-                {r.notes && (
-                  <p className="text-sm text-muted-foreground">{r.notes}</p>
-                )}
-              </CardContent>
-            </Card>
+                  {r.vitalSigns && (
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {r.vitalSigns.bloodPressure && (
+                        <span>BP {r.vitalSigns.bloodPressure}</span>
+                      )}
+                      {r.vitalSigns.pulse > 0 && (
+                        <span>P {r.vitalSigns.pulse}bpm</span>
+                      )}
+                      {r.vitalSigns.temperature > 0 && (
+                        <span>T {r.vitalSigns.temperature}°C</span>
+                      )}
+                      {r.vitalSigns.weight > 0 && (
+                        <span>W {r.vitalSigns.weight}kg</span>
+                      )}
+                      {r.vitalSigns.height > 0 && (
+                        <span>H {r.vitalSigns.height}cm</span>
+                      )}
+                    </div>
+                  )}
+                  {r.treatmentPlan && (
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">치료계획:</span>{' '}
+                      {r.treatmentPlan}
+                    </p>
+                  )}
+                  {r.notes && (
+                    <p className="text-sm text-muted-foreground">{r.notes}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
@@ -476,36 +478,38 @@ function ProceduresTab({
       ) : (
         <div className="space-y-4">
           {procedures.map((p) => (
-            <Card key={p.id}>
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">{p.procedureName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {p.date} · {p.doctor} · {p.anesthesiaType} · {p.duration}
-                    </p>
+            <Link key={p.id} to={`/emr/procedures/${p.id}`} className="block">
+              <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-semibold">{p.procedureName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {p.date} · {p.doctor} · {p.anesthesiaType} · {p.duration}
+                      </p>
+                    </div>
+                    <Badge className={PROCEDURE_STATUS_COLORS[p.status]}>
+                      {PROCEDURE_STATUS_LABELS[p.status]}
+                    </Badge>
                   </div>
-                  <Badge className={PROCEDURE_STATUS_COLORS[p.status]}>
-                    {PROCEDURE_STATUS_LABELS[p.status]}
-                  </Badge>
-                </div>
-                {p.details && (
-                  <p className="text-sm">{p.details}</p>
-                )}
-                {p.complications && (
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">합병증:</span>{' '}
-                    {p.complications}
-                  </p>
-                )}
-                {p.postOpInstructions && (
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">주의사항:</span>{' '}
-                    {p.postOpInstructions}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                  {p.details && (
+                    <p className="text-sm">{p.details}</p>
+                  )}
+                  {p.complications && (
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">합병증:</span>{' '}
+                      {p.complications}
+                    </p>
+                  )}
+                  {p.postOpInstructions && (
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">주의사항:</span>{' '}
+                      {p.postOpInstructions}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
@@ -649,46 +653,48 @@ function PrescriptionsTab({
       ) : (
         <div className="space-y-4">
           {prescriptions.map((rx) => (
-            <Card key={rx.id}>
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">처방전</p>
-                    <p className="text-xs text-muted-foreground">
-                      {rx.date} · {rx.doctorName}
-                    </p>
+            <Link key={rx.id} to={`/emr/prescriptions/${rx.id}`} className="block">
+              <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-semibold">처방전</p>
+                      <p className="text-xs text-muted-foreground">
+                        {rx.date} · {rx.doctorName}
+                      </p>
+                    </div>
+                    <Badge variant="outline">{rx.medications.length}종</Badge>
                   </div>
-                  <Badge variant="outline">{rx.medications.length}종</Badge>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b text-left text-xs text-muted-foreground">
-                        <th className="pb-1 pr-3">약물명</th>
-                        <th className="pb-1 pr-3">용량</th>
-                        <th className="pb-1 pr-3">횟수</th>
-                        <th className="pb-1 pr-3">기간</th>
-                        <th className="pb-1">지침</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rx.medications.map((m, i) => (
-                        <tr key={i} className="border-b last:border-0">
-                          <td className="py-1.5 pr-3 font-medium">{m.name}</td>
-                          <td className="py-1.5 pr-3">{m.dosage}</td>
-                          <td className="py-1.5 pr-3">{m.frequency}</td>
-                          <td className="py-1.5 pr-3">{m.duration}</td>
-                          <td className="py-1.5 text-muted-foreground">{m.instructions}</td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-left text-xs text-muted-foreground">
+                          <th className="pb-1 pr-3">약물명</th>
+                          <th className="pb-1 pr-3">용량</th>
+                          <th className="pb-1 pr-3">횟수</th>
+                          <th className="pb-1 pr-3">기간</th>
+                          <th className="pb-1">지침</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {rx.notes && (
-                  <p className="text-sm text-muted-foreground">{rx.notes}</p>
-                )}
-              </CardContent>
-            </Card>
+                      </thead>
+                      <tbody>
+                        {rx.medications.map((m, i) => (
+                          <tr key={i} className="border-b last:border-0">
+                            <td className="py-1.5 pr-3 font-medium">{m.name}</td>
+                            <td className="py-1.5 pr-3">{m.dosage}</td>
+                            <td className="py-1.5 pr-3">{m.frequency}</td>
+                            <td className="py-1.5 pr-3">{m.duration}</td>
+                            <td className="py-1.5 text-muted-foreground">{m.instructions}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {rx.notes && (
+                    <p className="text-sm text-muted-foreground">{rx.notes}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

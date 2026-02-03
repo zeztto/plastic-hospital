@@ -18,6 +18,10 @@ import { PatientList } from '@/pages/admin/emr/PatientList'
 import { NewPatient } from '@/pages/admin/emr/NewPatient'
 import { PatientChart } from '@/pages/admin/emr/PatientChart'
 import { RecordsList } from '@/pages/admin/emr/RecordsList'
+import { RecordDetail } from '@/pages/admin/emr/RecordDetail'
+import { ProceduresList } from '@/pages/admin/emr/ProceduresList'
+import { ProcedureDetail } from '@/pages/admin/emr/ProcedureDetail'
+import { PrescriptionDetail } from '@/pages/admin/emr/PrescriptionDetail'
 
 function App() {
   return (
@@ -59,6 +63,10 @@ function App() {
                   <Route path="patients/new" element={<NewPatient />} />
                   <Route path="patients/:id" element={<PatientChart />} />
                   <Route path="records" element={<RecordsList />} />
+                  <Route path="records/:id" element={<RecordDetail />} />
+                  <Route path="procedures" element={<ProceduresList />} />
+                  <Route path="procedures/:id" element={<ProcedureDetail />} />
+                  <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
                 </Route>
               </Routes>
             </EMRProvider>
