@@ -51,32 +51,61 @@ export const services = [
 
 export const doctors = [
   {
-    id: 'doctor1',
-    name: '김뷰티',
+    id: 'doc-1',
+    name: '김태호',
     title: '대표원장',
-    specialty: '성형외과 전문의',
+    specialty: '눈·코성형 전문',
+    image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=500&fit=crop&crop=face',
     careers: [
-      '연세대학교 의과대학 졸업',
-      '서울대학교병원 성형외과 전공의 수료',
+      '서울대학교 의과대학 졸업',
+      '서울아산병원 성형외과 전공의 수료',
       '대한성형외과학회 정회원',
       '대한미용성형외과학회 정회원',
       '미국성형외과학회(ASPS) 국제회원',
       '성형외과 전문의 자격 취득',
-      '20년 이상 성형외과 진료 경력',
+      '눈·코성형 전문 22년 경력',
     ],
   },
   {
-    id: 'doctor2',
-    name: '이아름',
-    title: '부원장',
-    specialty: '피부과 전문의',
+    id: 'doc-2',
+    name: '이서연',
+    title: '원장',
+    specialty: '안면윤곽·리프팅 전문',
+    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=500&fit=crop&crop=face',
+    careers: [
+      '연세대학교 의과대학 졸업',
+      '세브란스병원 성형외과 전공의 수료',
+      '대한성형외과학회 정회원',
+      '대한두개안면성형외과학회 정회원',
+      '안면윤곽·리프팅 전문 18년 경력',
+    ],
+  },
+  {
+    id: 'doc-3',
+    name: '박준혁',
+    title: '원장',
+    specialty: '가슴·체형성형 전문',
+    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=500&fit=crop&crop=face',
     careers: [
       '고려대학교 의과대학 졸업',
-      '삼성서울병원 피부과 전공의 수료',
+      '삼성서울병원 성형외과 전공의 수료',
+      '대한성형외과학회 정회원',
+      '대한미용성형외과학회 정회원',
+      '가슴·체형성형 전문 15년 경력',
+    ],
+  },
+  {
+    id: 'doc-4',
+    name: '최민지',
+    title: '원장',
+    specialty: '피부·쁘띠성형 전문',
+    image: 'https://images.unsplash.com/photo-1594824476967-48c8b964f137?w=400&h=500&fit=crop&crop=face',
+    careers: [
+      '이화여자대학교 의과대학 졸업',
+      '서울대학교병원 피부과 전공의 수료',
       '대한피부과학회 정회원',
       '대한레이저의학회 정회원',
-      '피부과 전문의 자격 취득',
-      '15년 이상 피부과 진료 경력',
+      '피부·쁘띠성형 전문 12년 경력',
     ],
   },
 ]
@@ -88,7 +117,8 @@ export const reviews = [
     rating: 5,
     content: '자연스러운 쌍꺼풀을 원했는데 정말 만족스러워요! 친구들도 성형한 티가 안 난다고 해요. 상담부터 수술, 사후관리까지 정말 꼼꼼하게 케어해주셔서 감사합니다.',
     author: '김**',
-    date: '2024.01.15',
+    date: '2025.01.15',
+    doctorName: '김태호 원장',
   },
   {
     id: 2,
@@ -96,7 +126,8 @@ export const reviews = [
     rating: 5,
     content: '낮은 코가 콤플렉스였는데 이제는 자신감이 생겼어요. 원장님께서 제 얼굴에 맞는 코 높이를 추천해주셔서 정말 자연스럽게 나왔습니다.',
     author: '박**',
-    date: '2024.01.10',
+    date: '2025.01.10',
+    doctorName: '김태호 원장',
   },
   {
     id: 3,
@@ -104,7 +135,8 @@ export const reviews = [
     rating: 5,
     content: '광대랑 턱 라인이 고민이었는데 수술 후 갸름해진 얼굴 보고 너무 행복해요. 붓기 관리도 잘 해주셔서 회복도 빨랐어요!',
     author: '이**',
-    date: '2024.01.05',
+    date: '2025.01.05',
+    doctorName: '이서연 원장',
   },
   {
     id: 4,
@@ -112,15 +144,44 @@ export const reviews = [
     rating: 5,
     content: '나이가 들면서 처진 피부가 고민이었는데 리프팅 후 10년은 젊어 보인다는 소리 들어요. 비절개라 흉터도 없고 너무 만족합니다.',
     author: '최**',
-    date: '2023.12.28',
+    date: '2024.12.28',
+    doctorName: '이서연 원장',
   },
   {
     id: 5,
+    procedure: '가슴성형',
+    rating: 5,
+    content: '체형에 맞는 사이즈를 추천해주셔서 정말 자연스러워요. 촉감도 자연스럽고 주변에서 모르더라고요. 박준혁 원장님 감사합니다!',
+    author: '정**',
+    date: '2024.12.20',
+    doctorName: '박준혁 원장',
+  },
+  {
+    id: 6,
     procedure: '피부시술',
     rating: 5,
     content: '보톡스, 필러 시술 받았는데 자연스럽게 예뻐졌어요. 주사 맞을 때도 거의 안 아팠고 결과도 너무 좋아서 주기적으로 방문하려고요.',
-    author: '정**',
-    date: '2023.12.20',
+    author: '한**',
+    date: '2024.12.15',
+    doctorName: '최민지 원장',
+  },
+  {
+    id: 7,
+    procedure: '코성형',
+    rating: 4,
+    content: '매부리코 교정했는데 옆모습이 완전 달라졌어요. 처음에 걱정 많이 했는데 김태호 원장님이 꼼꼼하게 설명해주셔서 안심하고 수술 받았습니다.',
+    author: '오**',
+    date: '2024.11.30',
+    doctorName: '김태호 원장',
+  },
+  {
+    id: 8,
+    procedure: '쁘띠성형',
+    rating: 5,
+    content: '윤곽주사랑 보톡스 같이 받았는데 얼굴이 한층 갸름해졌어요! 시술 시간도 짧고 바로 일상생활 가능해서 너무 좋았습니다.',
+    author: '강**',
+    date: '2024.11.20',
+    doctorName: '최민지 원장',
   },
 ]
 
@@ -191,4 +252,34 @@ export const clinicInfo = {
     sunday: '일요일/공휴일 휴진',
   },
   subway: '강남역 3번 출구에서 도보 5분',
+}
+
+export const heroImages = {
+  main: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=1920&h=1080&fit=crop',
+}
+
+export const sectionImages = {
+  beforeAfter: {
+    eye: [
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop',
+    ],
+    nose: [
+      'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop',
+    ],
+    contour: [
+      'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1505944270255-72b8c68c6a70?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=300&fit=crop',
+    ],
+    lifting: [
+      'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+    ],
+  },
+  location: 'https://images.unsplash.com/photo-1583396082374-14e87b006b63?w=800&h=600&fit=crop',
 }

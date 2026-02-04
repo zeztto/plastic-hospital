@@ -2,13 +2,20 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { reviews } from '@/data/content'
 import { Star, Quote } from 'lucide-react'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 export function Reviews() {
+  const { ref, isVisible } = useScrollReveal()
+
   return (
-    <section id="reviews" className="py-16 lg:py-24 bg-muted/30">
-      <div className="container mx-auto px-4">
+    <section id="reviews" className="py-16 lg:py-24 bg-muted/30 relative overflow-hidden">
+      <div className="absolute top-8 left-8 text-[200px] font-bold text-primary/[0.03] leading-none select-none pointer-events-none">
+        &ldquo;
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12 lg:mb-16">
-          <p className="text-primary font-medium mb-2">REVIEWS</p>
+          <p className="text-primary font-medium mb-2 text-sm tracking-widest uppercase">Reviews</p>
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
             고객 후기
           </h2>
@@ -18,11 +25,20 @@ export function Reviews() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reviews.map((review) => (
+        <div 
+          ref={ref}
+          className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {reviews.map((review, index) => (
             <Card 
               key={review.id} 
-              className="bg-white hover:shadow-lg transition-shadow"
+              className={`min-w-[320px] snap-center lg:min-w-0 bg-white hover:shadow-xl transition-all duration-500 ${
+                index === 0 ? 'lg:col-span-1 border-primary/20 shadow-md' : ''
+              } ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
+              style={{ transitionDelay: `${index * 80}ms` }}
             >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -30,23 +46,37 @@ export function Reviews() {
                     {review.procedure}
                   </Badge>
                   <div className="flex gap-0.5">
-                    {Array.from({ length: review.rating }).map((_, i) => (
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Star 
                         key={i} 
-                        className="w-4 h-4 fill-yellow-400 text-yellow-400" 
+                        className={`w-4 h-4 ${
+                          i < review.rating 
+                            ? 'fill-yellow-400 text-yellow-400' 
+                            : 'fill-gray-200 text-gray-200'
+                        }`}
                       />
                     ))}
                   </div>
                 </div>
                 <div className="relative">
                   <Quote className="absolute -top-2 -left-2 w-8 h-8 text-primary/10" />
-                  <p className="text-muted-foreground leading-relaxed pl-4">
+                  <p className="text-muted-foreground leading-relaxed pl-4 text-sm">
                     {review.content}
                   </p>
                 </div>
-                <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
-                  <span className="font-medium text-foreground">{review.author}</span>
-                  <span className="text-sm text-muted-foreground">{review.date}</span>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-200/40 flex items-center justify-center">
+                      <span className="text-sm font-bold text-primary">{review.author.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground text-sm">{review.author}</span>
+                      {review.doctorName && (
+                        <p className="text-xs text-muted-foreground">담당: {review.doctorName}</p>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-auto">{review.date}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

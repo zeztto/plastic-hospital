@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu, X, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
@@ -15,6 +15,15 @@ const navItems = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href)
@@ -25,7 +34,13 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? 'bg-white/95 backdrop-blur-sm border-b border-border shadow-sm' 
+          : 'bg-transparent'
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <a 
@@ -33,7 +48,9 @@ export function Header() {
             onClick={(e) => { e.preventDefault(); scrollToSection('#hero') }}
             className="flex items-center gap-2"
           >
-            <span className="text-xl lg:text-2xl font-bold text-primary">
+            <span className={`text-xl lg:text-2xl font-bold transition-colors duration-300 ${
+              scrolled ? 'text-primary' : 'text-white'
+            }`}>
               {clinicInfo.name}
             </span>
           </a>
@@ -44,7 +61,11 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => { e.preventDefault(); scrollToSection(item.href) }}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className={`text-sm font-medium transition-colors duration-300 ${
+                  scrolled 
+                    ? 'text-muted-foreground hover:text-primary' 
+                    : 'text-white/80 hover:text-white'
+                }`}
               >
                 {item.label}
               </a>
@@ -54,7 +75,9 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-4">
             <a 
               href={`tel:${clinicInfo.phone}`}
-              className="flex items-center gap-2 text-sm text-muted-foreground"
+              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
+                scrolled ? 'text-muted-foreground' : 'text-white/80'
+              }`}
             >
               <Phone className="w-4 h-4" />
               {clinicInfo.phone}
@@ -69,7 +92,7 @@ export function Header() {
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className={scrolled ? '' : 'text-white hover:bg-white/10'}>
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
