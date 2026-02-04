@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -62,8 +62,10 @@ const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일']
 
 export function ScheduleCalendar() {
   const { bookings, refresh } = useBookings()
-  const [weekBase, setWeekBase] = useState(new Date())
-  const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([])
+  const [weekBase, setWeekBase] = useState(() => {
+    scheduleStorage.seedDemoData()
+    return new Date()
+  })
   const [blockDialogOpen, setBlockDialogOpen] = useState(false)
   const [deleteBlockTarget, setDeleteBlockTarget] = useState<TimeBlock | null>(null)
   const [newBlock, setNewBlock] = useState({
@@ -83,13 +85,8 @@ export function ScheduleCalendar() {
   const weekEnd = formatDate(weekDates[6])
 
   const refreshBlocks = useCallback(() => {
-    setTimeBlocks(scheduleStorage.getByDateRange(weekStart, weekEnd))
-  }, [weekStart, weekEnd])
-
-  useEffect(() => {
-    scheduleStorage.seedDemoData()
-    refreshBlocks()
-  }, [refreshBlocks])
+    setWeekBase((prev) => new Date(prev))
+  }, [])
 
   const weekBookings = useMemo(() => {
     return bookings.filter((b) => b.date >= weekStart && b.date <= weekEnd && b.status !== 'cancelled')
@@ -105,6 +102,11 @@ export function ScheduleCalendar() {
     }
     return map
   }, [weekBookings])
+
+  const timeBlocks = useMemo(
+    () => scheduleStorage.getByDateRange(weekStart, weekEnd),
+    [weekStart, weekEnd]
+  )
 
   const blocksByDoctorAndDate = useMemo(() => {
     const map = new Map<string, TimeBlock[]>()

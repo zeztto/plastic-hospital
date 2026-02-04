@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,7 +34,10 @@ import {
 import { toast } from 'sonner'
 
 function NoticesTab() {
-  const [notices, setNotices] = useState<Notice[]>([])
+  const [notices, setNotices] = useState<Notice[]>(() => {
+    operationStorage.seedDemoData()
+    return operationStorage.getNotices()
+  })
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<Notice | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Notice | null>(null)
@@ -47,11 +50,6 @@ function NoticesTab() {
   })
 
   const refresh = () => setNotices(operationStorage.getNotices())
-
-  useEffect(() => {
-    operationStorage.seedDemoData()
-    refresh()
-  }, [])
 
   const openCreate = () => {
     setEditTarget(null)
@@ -221,15 +219,13 @@ function NoticesTab() {
 
 function PhoneTab() {
   const { getCustomerByPhone } = useCustomers()
-  const [calls, setCalls] = useState<PhoneCallRecord[]>([])
+  const [calls, setCalls] = useState<PhoneCallRecord[]>(() => {
+    operationStorage.seedDemoData()
+    return operationStorage.getPhoneCalls()
+  })
   const [simulatePhone, setSimulatePhone] = useState('')
   const [matchedCustomer, setMatchedCustomer] = useState<{ name: string; phone: string; grade: string } | null>(null)
   const [showPopup, setShowPopup] = useState(false)
-
-  useEffect(() => {
-    operationStorage.seedDemoData()
-    setCalls(operationStorage.getPhoneCalls())
-  }, [])
 
   const handleSimulateCall = () => {
     if (!simulatePhone.trim()) {
@@ -378,13 +374,11 @@ function PhoneTab() {
 }
 
 function NaverSyncTab() {
-  const [bookings, setBookings] = useState<NaverBooking[]>([])
-  const [syncing, setSyncing] = useState(false)
-
-  useEffect(() => {
+  const [bookings, setBookings] = useState<NaverBooking[]>(() => {
     operationStorage.seedDemoData()
-    setBookings(operationStorage.getNaverBookings())
-  }, [])
+    return operationStorage.getNaverBookings()
+  })
+  const [syncing, setSyncing] = useState(false)
 
   const handleSyncAll = () => {
     setSyncing(true)
