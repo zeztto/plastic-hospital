@@ -1,4 +1,5 @@
 import type { TimeBlock } from '@/types/schedule'
+import { safeParse } from '@/lib/safeStorage'
 
 const TIMEBLOCK_KEY = 'plastic-hospital-timeblocks'
 
@@ -7,9 +8,7 @@ function generateId(): string {
 }
 
 function getAll(): TimeBlock[] {
-  const raw = localStorage.getItem(TIMEBLOCK_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as TimeBlock[]
+  return safeParse<TimeBlock>(TIMEBLOCK_KEY, [])
 }
 
 function save(blocks: TimeBlock[]): void {

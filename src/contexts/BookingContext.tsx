@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import type { Booking, BookingFormData, BookingStatus, JourneyStage } from '@/types/booking'
 import { bookingStorage } from '@/services/bookingStorage'
 
@@ -79,21 +79,24 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  const value = useMemo(
+    () => ({
+      bookings,
+      refresh,
+      create,
+      updateStatus,
+      updateMemo,
+      updateJourneyStage,
+      deleteBooking,
+      getById,
+      stats,
+      marketingStats,
+    }),
+    [bookings, refresh, create, updateStatus, updateMemo, updateJourneyStage, deleteBooking, getById, stats, marketingStats]
+  )
+
   return (
-    <BookingContext.Provider
-      value={{
-        bookings,
-        refresh,
-        create,
-        updateStatus,
-        updateMemo,
-        updateJourneyStage,
-        deleteBooking,
-        getById,
-        stats,
-        marketingStats,
-      }}
-    >
+    <BookingContext.Provider value={value}>
       {children}
     </BookingContext.Provider>
   )

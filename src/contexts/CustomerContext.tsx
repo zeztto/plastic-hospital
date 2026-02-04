@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import type {
   Customer,
   CustomerGrade,
@@ -30,12 +30,15 @@ const CustomerContext = createContext<CustomerContextValue | null>(null)
 export function CustomerProvider({ children }: { children: ReactNode }) {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [followUps, setFollowUps] = useState<FollowUpTask[]>([])
-  const [pendingFollowUps, setPendingFollowUps] = useState<FollowUpTask[]>([])
+
+  const pendingFollowUps = useMemo(
+    () => followUps.filter((f) => f.status === 'pending'),
+    [followUps]
+  )
 
   const refresh = useCallback(() => {
     setCustomers(customerStorage.getAll())
     setFollowUps(customerStorage.getFollowUps())
-    setPendingFollowUps(customerStorage.getPendingFollowUps())
   }, [])
 
   useEffect(() => {
@@ -107,24 +110,27 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  const value = useMemo(
+    () => ({
+      customers,
+      followUps,
+      pendingFollowUps,
+      refresh,
+      getCustomerById,
+      getCustomerByPhone,
+      updateGrade,
+      addMemo,
+      deleteMemo,
+      addTag,
+      removeTag,
+      updateFollowUpStatus,
+      getFollowUpsByCustomer,
+    }),
+    [customers, followUps, pendingFollowUps, refresh, getCustomerById, getCustomerByPhone, updateGrade, addMemo, deleteMemo, addTag, removeTag, updateFollowUpStatus, getFollowUpsByCustomer]
+  )
+
   return (
-    <CustomerContext.Provider
-      value={{
-        customers,
-        followUps,
-        pendingFollowUps,
-        refresh,
-        getCustomerById,
-        getCustomerByPhone,
-        updateGrade,
-        addMemo,
-        deleteMemo,
-        addTag,
-        removeTag,
-        updateFollowUpStatus,
-        getFollowUpsByCustomer,
-      }}
-    >
+    <CustomerContext.Provider value={value}>
       {children}
     </CustomerContext.Provider>
   )

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useMessages } from '@/contexts/MessageContext'
 import { useCustomers } from '@/contexts/CustomerContext'
+import { useBookings } from '@/contexts/BookingContext'
 import {
   MESSAGE_CHANNEL_LABELS,
   TEMPLATE_CATEGORY_LABELS,
@@ -246,6 +247,7 @@ function TemplatesTab() {
 function SendTab() {
   const { activeTemplates, sendMessage, sendBulkMessages } = useMessages()
   const { customers } = useCustomers()
+  const { bookings } = useBookings()
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(new Set())
   const [customerSearch, setCustomerSearch] = useState('')
@@ -253,6 +255,26 @@ function SendTab() {
   const [showPreview, setShowPreview] = useState(false)
 
   const template = activeTemplates.find((t) => t.id === selectedTemplate)
+
+  const getCustomerBookingInfo = (phone: string) => {
+    const customerBookings = bookings
+      .filter((b) => b.phone === phone && b.status !== 'cancelled')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    const latest = customerBookings[0]
+    return {
+      time: latest?.time ?? '',
+      procedure: latest?.procedure ?? '',
+    }
+  }
+
+  const replaceVariables = (content: string, customerName: string, customerPhone: string) => {
+    const info = getCustomerBookingInfo(customerPhone)
+    return content
+      .replace(/\{\{고객명\}\}/g, customerName)
+      .replace(/\{\{날짜\}\}/g, new Date().toISOString().split('T')[0])
+      .replace(/\{\{시간\}\}/g, info.time)
+      .replace(/\{\{시술명\}\}/g, info.procedure)
+  }
 
   const filteredCustomers = useMemo(() => {
     if (!customerSearch) return customers
@@ -288,14 +310,11 @@ function SendTab() {
       return
     }
     const firstCustomer = customers.find((c) => selectedCustomers.has(c.id))
-    let content = template.content
     if (firstCustomer) {
-      content = content.replace(/\{\{고객명\}\}/g, firstCustomer.name)
+      setPreviewContent(replaceVariables(template.content, firstCustomer.name, firstCustomer.phone))
+    } else {
+      setPreviewContent(template.content)
     }
-    content = content.replace(/\{\{날짜\}\}/g, new Date().toISOString().split('T')[0])
-    content = content.replace(/\{\{시간\}\}/g, '10:00')
-    content = content.replace(/\{\{시술명\}\}/g, '시술')
-    setPreviewContent(content)
     setShowPreview(true)
   }
 
@@ -306,10 +325,7 @@ function SendTab() {
       .map((c) => ({ name: c.name, phone: c.phone }))
 
     if (recipients.length === 1) {
-      let content = template.content.replace(/\{\{고객명\}\}/g, recipients[0].name)
-      content = content.replace(/\{\{날짜\}\}/g, new Date().toISOString().split('T')[0])
-      content = content.replace(/\{\{시간\}\}/g, '10:00')
-      content = content.replace(/\{\{시술명\}\}/g, '시술')
+      const content = replaceVariables(template.content, recipients[0].name, recipients[0].phone)
       sendMessage({
         templateId: template.id,
         templateName: template.name,
@@ -319,10 +335,7 @@ function SendTab() {
         content,
       })
     } else {
-      let content = template.content
-      content = content.replace(/\{\{날짜\}\}/g, new Date().toISOString().split('T')[0])
-      content = content.replace(/\{\{시간\}\}/g, '10:00')
-      content = content.replace(/\{\{시술명\}\}/g, '시술')
+      const content = replaceVariables(template.content, '', '')
       sendBulkMessages(recipients, template.id, template.name, template.channel, content)
     }
 

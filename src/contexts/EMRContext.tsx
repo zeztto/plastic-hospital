@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import type { Patient, MedicalRecord, ProcedureRecord, Prescription, ProcedureStatus } from '@/types/emr'
 import { emrStorage } from '@/services/emrStorage'
 
@@ -168,16 +168,23 @@ export function EMRProvider({ children }: { children: ReactNode }) {
     [refresh]
   )
 
+  const value = useMemo(
+    () => ({
+      patients, refresh, getPatient, createPatient, updatePatient, deletePatient,
+      getAllRecords, getRecords, getRecordById, createRecord, updateRecord, deleteRecord,
+      getAllProcedures, getProcedures, getProcedureById, createProcedure, updateProcedure, updateProcedureStatus, deleteProcedure,
+      getAllPrescriptions, getPrescriptions, getPrescriptionById, createPrescription, updatePrescription, deletePrescription,
+      stats,
+    }),
+    [patients, refresh, getPatient, createPatient, updatePatient, deletePatient,
+      getAllRecords, getRecords, getRecordById, createRecord, updateRecord, deleteRecord,
+      getAllProcedures, getProcedures, getProcedureById, createProcedure, updateProcedure, updateProcedureStatus, deleteProcedure,
+      getAllPrescriptions, getPrescriptions, getPrescriptionById, createPrescription, updatePrescription, deletePrescription,
+      stats]
+  )
+
   return (
-    <EMRContext.Provider
-      value={{
-        patients, refresh, getPatient, createPatient, updatePatient, deletePatient,
-        getAllRecords, getRecords, getRecordById, createRecord, updateRecord, deleteRecord,
-        getAllProcedures, getProcedures, getProcedureById, createProcedure, updateProcedure, updateProcedureStatus, deleteProcedure,
-        getAllPrescriptions, getPrescriptions, getPrescriptionById, createPrescription, updatePrescription, deletePrescription,
-        stats,
-      }}
-    >
+    <EMRContext.Provider value={value}>
       {children}
     </EMRContext.Provider>
   )

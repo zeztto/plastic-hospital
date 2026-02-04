@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { BookingProvider } from '@/contexts/BookingContext'
@@ -6,33 +7,42 @@ import { MessageProvider } from '@/contexts/MessageContext'
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext'
 import { EMRAuthProvider } from '@/contexts/EMRAuthContext'
 import { EMRProvider } from '@/contexts/EMRContext'
-import { Home } from '@/pages/Home'
-import { AdminLogin } from '@/pages/admin/AdminLogin'
-import { Dashboard } from '@/pages/admin/Dashboard'
-import { BookingList } from '@/pages/admin/BookingList'
-import { BookingDetail } from '@/pages/admin/BookingDetail'
-import { MarketingDashboard } from '@/pages/admin/MarketingDashboard'
-import { CustomerList } from '@/pages/admin/CustomerList'
-import { CustomerDetail } from '@/pages/admin/CustomerDetail'
-import { FollowUpList } from '@/pages/admin/FollowUpList'
-import { ScheduleCalendar } from '@/pages/admin/ScheduleCalendar'
-import { MessageCenter } from '@/pages/admin/MessageCenter'
-import { Operations } from '@/pages/admin/Operations'
 import { AdminLayout } from '@/components/admin/AdminLayout'
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute'
-import { EMRLogin } from '@/pages/emr/EMRLogin'
-import { EMRDashboard } from '@/pages/emr/EMRDashboard'
 import { EMRLayout } from '@/components/emr/EMRLayout'
 import { EMRProtectedRoute } from '@/components/emr/EMRProtectedRoute'
-import { PatientList } from '@/pages/admin/emr/PatientList'
-import { NewPatient } from '@/pages/admin/emr/NewPatient'
-import { PatientChart } from '@/pages/admin/emr/PatientChart'
-import { RecordsList } from '@/pages/admin/emr/RecordsList'
-import { RecordDetail } from '@/pages/admin/emr/RecordDetail'
-import { ProceduresList } from '@/pages/admin/emr/ProceduresList'
-import { ProcedureDetail } from '@/pages/admin/emr/ProcedureDetail'
-import { PrescriptionsList } from '@/pages/admin/emr/PrescriptionsList'
-import { PrescriptionDetail } from '@/pages/admin/emr/PrescriptionDetail'
+
+const Home = lazy(() => import('@/pages/Home').then((m) => ({ default: m.Home })))
+const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin').then((m) => ({ default: m.AdminLogin })))
+const Dashboard = lazy(() => import('@/pages/admin/Dashboard').then((m) => ({ default: m.Dashboard })))
+const BookingList = lazy(() => import('@/pages/admin/BookingList').then((m) => ({ default: m.BookingList })))
+const BookingDetail = lazy(() => import('@/pages/admin/BookingDetail').then((m) => ({ default: m.BookingDetail })))
+const MarketingDashboard = lazy(() => import('@/pages/admin/MarketingDashboard').then((m) => ({ default: m.MarketingDashboard })))
+const CustomerList = lazy(() => import('@/pages/admin/CustomerList').then((m) => ({ default: m.CustomerList })))
+const CustomerDetail = lazy(() => import('@/pages/admin/CustomerDetail').then((m) => ({ default: m.CustomerDetail })))
+const FollowUpList = lazy(() => import('@/pages/admin/FollowUpList').then((m) => ({ default: m.FollowUpList })))
+const ScheduleCalendar = lazy(() => import('@/pages/admin/ScheduleCalendar').then((m) => ({ default: m.ScheduleCalendar })))
+const MessageCenter = lazy(() => import('@/pages/admin/MessageCenter').then((m) => ({ default: m.MessageCenter })))
+const Operations = lazy(() => import('@/pages/admin/Operations').then((m) => ({ default: m.Operations })))
+const EMRLogin = lazy(() => import('@/pages/emr/EMRLogin').then((m) => ({ default: m.EMRLogin })))
+const EMRDashboard = lazy(() => import('@/pages/emr/EMRDashboard').then((m) => ({ default: m.EMRDashboard })))
+const PatientList = lazy(() => import('@/pages/admin/emr/PatientList').then((m) => ({ default: m.PatientList })))
+const NewPatient = lazy(() => import('@/pages/admin/emr/NewPatient').then((m) => ({ default: m.NewPatient })))
+const PatientChart = lazy(() => import('@/pages/admin/emr/PatientChart').then((m) => ({ default: m.PatientChart })))
+const RecordsList = lazy(() => import('@/pages/admin/emr/RecordsList').then((m) => ({ default: m.RecordsList })))
+const RecordDetail = lazy(() => import('@/pages/admin/emr/RecordDetail').then((m) => ({ default: m.RecordDetail })))
+const ProceduresList = lazy(() => import('@/pages/admin/emr/ProceduresList').then((m) => ({ default: m.ProceduresList })))
+const ProcedureDetail = lazy(() => import('@/pages/admin/emr/ProcedureDetail').then((m) => ({ default: m.ProcedureDetail })))
+const PrescriptionsList = lazy(() => import('@/pages/admin/emr/PrescriptionsList').then((m) => ({ default: m.PrescriptionsList })))
+const PrescriptionDetail = lazy(() => import('@/pages/admin/emr/PrescriptionDetail').then((m) => ({ default: m.PrescriptionDetail })))
+
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[200px]">
+      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
 
 function App() {
   return (
@@ -43,6 +53,7 @@ function App() {
               <CustomerProvider>
               <MessageProvider>
               <EMRProvider>
+              <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 <Route path="/" element={<Home />} />
 
@@ -90,6 +101,7 @@ function App() {
                   <Route path="prescriptions/:id" element={<PrescriptionDetail />} />
                 </Route>
               </Routes>
+              </Suspense>
               <Toaster richColors position="top-right" />
               </EMRProvider>
               </MessageProvider>

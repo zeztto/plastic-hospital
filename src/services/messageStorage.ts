@@ -7,6 +7,7 @@ import type {
   AutoSendRule,
   AutoSendTrigger,
 } from '@/types/message'
+import { safeParse } from '@/lib/safeStorage'
 
 const TEMPLATE_KEY = 'plastic-hospital-msg-templates'
 const SEND_KEY = 'plastic-hospital-msg-sends'
@@ -21,9 +22,7 @@ function generateSendId(): string {
 }
 
 function getAllTemplates(): MessageTemplate[] {
-  const raw = localStorage.getItem(TEMPLATE_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as MessageTemplate[]
+  return safeParse<MessageTemplate>(TEMPLATE_KEY, [])
 }
 
 function saveTemplates(templates: MessageTemplate[]): void {
@@ -31,9 +30,7 @@ function saveTemplates(templates: MessageTemplate[]): void {
 }
 
 function getAllSends(): MessageSendRecord[] {
-  const raw = localStorage.getItem(SEND_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as MessageSendRecord[]
+  return safeParse<MessageSendRecord>(SEND_KEY, [])
 }
 
 function saveSends(sends: MessageSendRecord[]): void {
@@ -41,9 +38,7 @@ function saveSends(sends: MessageSendRecord[]): void {
 }
 
 function getAllAutoSendRules(): AutoSendRule[] {
-  const raw = localStorage.getItem(AUTOSEND_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as AutoSendRule[]
+  return safeParse<AutoSendRule>(AUTOSEND_KEY, [])
 }
 
 function saveAutoSendRules(rules: AutoSendRule[]): void {

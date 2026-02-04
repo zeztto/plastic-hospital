@@ -30,6 +30,7 @@ import { useBookings } from '@/contexts/BookingContext'
 import type { Booking } from '@/types/booking'
 import { SCHEDULE_DOCTORS, SCHEDULE_TIME_SLOTS, type TimeBlock } from '@/types/schedule'
 import { scheduleStorage } from '@/services/scheduleStorage'
+import { bookingStorage } from '@/services/bookingStorage'
 import {
   ChevronLeft,
   ChevronRight,
@@ -60,7 +61,7 @@ function formatDate(date: Date): string {
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일']
 
 export function ScheduleCalendar() {
-  const { bookings, updateStatus } = useBookings()
+  const { bookings, refresh } = useBookings()
   const [weekBase, setWeekBase] = useState(new Date())
   const [timeBlocks, setTimeBlocks] = useState<TimeBlock[]>([])
   const [blockDialogOpen, setBlockDialogOpen] = useState(false)
@@ -194,13 +195,9 @@ export function ScheduleCalendar() {
       return
     }
 
-    const storage = JSON.parse(localStorage.getItem('plastic-hospital-bookings') || '[]') as Booking[]
-    const index = storage.findIndex((b) => b.id === dragBooking.id)
-    if (index !== -1) {
-      storage[index].date = date
-      storage[index].time = time
-      localStorage.setItem('plastic-hospital-bookings', JSON.stringify(storage))
-      updateStatus(dragBooking.id, dragBooking.status)
+    const updated = bookingStorage.updateBookingDateTime(dragBooking.id, date, time)
+    if (updated) {
+      refresh()
       toast.success(`${dragBooking.name}님 예약이 ${date} ${time}으로 변경되었습니다.`)
     }
     setDragBooking(null)

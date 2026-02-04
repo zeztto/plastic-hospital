@@ -5,6 +5,7 @@ import type {
   NaverSyncStatus,
   PhoneCallRecord,
 } from '@/types/operation'
+import { safeParse } from '@/lib/safeStorage'
 
 const NOTICE_KEY = 'plastic-hospital-notices'
 const NAVER_KEY = 'plastic-hospital-naver-bookings'
@@ -15,9 +16,7 @@ function generateNoticeId(): string {
 }
 
 function getAllNotices(): Notice[] {
-  const raw = localStorage.getItem(NOTICE_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as Notice[]
+  return safeParse<Notice>(NOTICE_KEY, [])
 }
 
 function saveNotices(notices: Notice[]): void {
@@ -25,9 +24,7 @@ function saveNotices(notices: Notice[]): void {
 }
 
 function getAllNaverBookings(): NaverBooking[] {
-  const raw = localStorage.getItem(NAVER_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as NaverBooking[]
+  return safeParse<NaverBooking>(NAVER_KEY, [])
 }
 
 function saveNaverBookings(bookings: NaverBooking[]): void {
@@ -35,9 +32,7 @@ function saveNaverBookings(bookings: NaverBooking[]): void {
 }
 
 function getAllPhoneCalls(): PhoneCallRecord[] {
-  const raw = localStorage.getItem(PHONE_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as PhoneCallRecord[]
+  return safeParse<PhoneCallRecord>(PHONE_KEY, [])
 }
 
 function savePhoneCalls(calls: PhoneCallRecord[]): void {

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useBookings } from '@/contexts/BookingContext'
@@ -19,26 +20,40 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+const WEEKDAY_LABELS = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
+
 export function Dashboard() {
   const { stats, bookings, marketingStats } = useBookings()
 
-  const todayBookings = bookings.filter(
-    (b) => b.date === '2026-02-06'
+  const today = useMemo(() => new Date().toISOString().split('T')[0], [])
+
+  const todayLabel = useMemo(() => {
+    const d = new Date()
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEKDAY_LABELS[d.getDay()]}`
+  }, [])
+
+  const todayBookings = useMemo(
+    () => bookings.filter((b) => b.date === today),
+    [bookings, today]
   )
 
-  const upcomingBookings = bookings
-    .filter((b) => b.date >= '2026-02-06' && b.status !== 'cancelled')
-    .sort((a, b) => {
-      if (a.date !== b.date) return a.date.localeCompare(b.date)
-      return a.time.localeCompare(b.time)
-    })
-    .slice(0, 5)
+  const upcomingBookings = useMemo(
+    () =>
+      bookings
+        .filter((b) => b.date >= today && b.status !== 'cancelled')
+        .sort((a, b) => {
+          if (a.date !== b.date) return a.date.localeCompare(b.date)
+          return a.time.localeCompare(b.time)
+        })
+        .slice(0, 5),
+    [bookings, today]
+  )
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-foreground">대시보드</h1>
-        <p className="text-muted-foreground mt-1">2026년 2월 6일 목요일</p>
+        <p className="text-muted-foreground mt-1">{todayLabel}</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

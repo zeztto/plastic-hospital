@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
 import type {
   MessageTemplate,
   TemplateCategory,
@@ -51,14 +51,17 @@ const MessageContext = createContext<MessageContextValue | null>(null)
 
 export function MessageProvider({ children }: { children: ReactNode }) {
   const [templates, setTemplates] = useState<MessageTemplate[]>([])
-  const [activeTemplates, setActiveTemplates] = useState<MessageTemplate[]>([])
   const [sendRecords, setSendRecords] = useState<MessageSendRecord[]>([])
   const [autoSendRules, setAutoSendRules] = useState<AutoSendRule[]>([])
   const [sendStats, setSendStats] = useState(messageStorage.getSendStats())
 
+  const activeTemplates = useMemo(
+    () => templates.filter((t) => t.isActive),
+    [templates]
+  )
+
   const refresh = useCallback(() => {
     setTemplates(messageStorage.getTemplates())
-    setActiveTemplates(messageStorage.getActiveTemplates())
     setSendRecords(messageStorage.getSendRecords())
     setAutoSendRules(messageStorage.getAutoSendRules())
     setSendStats(messageStorage.getSendStats())
@@ -133,25 +136,28 @@ export function MessageProvider({ children }: { children: ReactNode }) {
     [refresh]
   )
 
+  const value = useMemo(
+    () => ({
+      templates,
+      activeTemplates,
+      sendRecords,
+      autoSendRules,
+      sendStats,
+      refresh,
+      getTemplateById,
+      createTemplate,
+      updateTemplate,
+      deleteTemplate,
+      sendMessage,
+      sendBulkMessages,
+      updateAutoSendRule,
+      updateAutoSendRuleTemplate,
+    }),
+    [templates, activeTemplates, sendRecords, autoSendRules, sendStats, refresh, getTemplateById, createTemplate, updateTemplate, deleteTemplate, sendMessage, sendBulkMessages, updateAutoSendRule, updateAutoSendRuleTemplate]
+  )
+
   return (
-    <MessageContext.Provider
-      value={{
-        templates,
-        activeTemplates,
-        sendRecords,
-        autoSendRules,
-        sendStats,
-        refresh,
-        getTemplateById,
-        createTemplate,
-        updateTemplate,
-        deleteTemplate,
-        sendMessage,
-        sendBulkMessages,
-        updateAutoSendRule,
-        updateAutoSendRuleTemplate,
-      }}
-    >
+    <MessageContext.Provider value={value}>
       {children}
     </MessageContext.Provider>
   )

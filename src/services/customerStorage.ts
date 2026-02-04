@@ -8,6 +8,7 @@ import type {
   FollowUpType,
 } from '@/types/customer'
 import type { Booking } from '@/types/booking'
+import { safeParse } from '@/lib/safeStorage'
 
 const CUSTOMER_KEY = 'plastic-hospital-customers'
 const FOLLOWUP_KEY = 'plastic-hospital-followups'
@@ -25,9 +26,7 @@ function generateFollowUpId(): string {
 }
 
 function getAllCustomers(): Customer[] {
-  const raw = localStorage.getItem(CUSTOMER_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as Customer[]
+  return safeParse<Customer>(CUSTOMER_KEY, [])
 }
 
 function saveCustomers(customers: Customer[]): void {
@@ -35,9 +34,7 @@ function saveCustomers(customers: Customer[]): void {
 }
 
 function getAllFollowUps(): FollowUpTask[] {
-  const raw = localStorage.getItem(FOLLOWUP_KEY)
-  if (!raw) return []
-  return JSON.parse(raw) as FollowUpTask[]
+  return safeParse<FollowUpTask>(FOLLOWUP_KEY, [])
 }
 
 function saveFollowUps(followUps: FollowUpTask[]): void {
@@ -331,79 +328,70 @@ export const customerStorage = {
     customerStorage.syncFromBookings(bookings)
 
     const customers = getAllCustomers()
-    const gradeMap: Record<string, CustomerGrade> = {
-      '010-3333-7777': 'vip',
-      '010-2222-8888': 'gold',
-      '010-8888-2222': 'gold',
-      '010-5555-7777': 'silver',
-    }
+
+    const vipPhones = ['010-3333-7777', '010-1111-2222', '010-3333-4444']
+    const goldPhones = ['010-2222-8888', '010-8888-2222', '010-2222-3333', '010-5555-6666', '010-7777-8888', '010-1234-1111', '010-4567-4444', '010-6789-6666']
+    const silverPhones = ['010-5555-7777', '010-4444-5555', '010-6666-7777', '010-8888-9999', '010-2345-2222', '010-3456-3333', '010-7890-7777', '010-8901-8888', '010-9012-9999', '010-1122-3344']
+
+    const vipSet = new Set(vipPhones)
+    const goldSet = new Set(goldPhones)
+    const silverSet = new Set(silverPhones)
 
     for (const c of customers) {
-      const grade = gradeMap[c.phone]
-      if (grade) {
-        c.grade = grade
-      } else if (c.totalVisits > 0) {
-        c.grade = 'normal'
-      }
+      if (vipSet.has(c.phone)) c.grade = 'vip'
+      else if (goldSet.has(c.phone)) c.grade = 'gold'
+      else if (silverSet.has(c.phone)) c.grade = 'silver'
+      else if (c.totalVisits > 0) c.grade = 'normal'
     }
 
     const choi = customers.find((c) => c.phone === '010-3333-7777')
     if (choi) {
-      choi.memos = [
-        {
-          id: 'MEMO-DEMO-001',
-          content: '3회차 방문 고객, 항상 정시 방문',
-          type: 'reception',
-          createdAt: '2026-02-03T11:00:00.000Z',
-        },
-      ]
+      choi.memos = [{ id: 'MEMO-DEMO-001', content: '3회차 방문 고객, 항상 정시 방문', type: 'reception' as MemoType, createdAt: '2026-02-03T11:00:00.000Z' }]
       choi.tags = ['보톡스', '재방문', 'VIP']
     }
 
     const kang = customers.find((c) => c.phone === '010-2222-8888')
     if (kang) {
-      kang.memos = [
-        {
-          id: 'MEMO-DEMO-002',
-          content: '코 교정 후 경과 좋음, 추가 시술 관심 있음',
-          type: 'consultation',
-          createdAt: '2026-02-05T10:00:00.000Z',
-        },
-      ]
+      kang.memos = [{ id: 'MEMO-DEMO-002', content: '코 교정 후 경과 좋음, 추가 시술 관심 있음', type: 'consultation' as MemoType, createdAt: '2026-02-05T10:00:00.000Z' }]
       kang.tags = ['코성형', '경과관찰']
     }
 
     const jung = customers.find((c) => c.phone === '010-8888-2222')
-    if (jung) {
-      jung.tags = ['안면윤곽', '수술예정']
-    }
+    if (jung) { jung.tags = ['안면윤곽', '수술예정'] }
 
     const kimSoyeon = customers.find((c) => c.phone === '010-1111-2222')
     if (kimSoyeon) {
-      kimSoyeon.grade = 'vip'
       kimSoyeon.tags = ['눈성형', '재방문', 'VIP', '소개고객']
       kimSoyeon.memos = [{ id: 'MEMO-DEMO-003', content: '지인 3명 소개한 우수 고객. 항상 친절하고 시간 약속 잘 지킴.', type: 'reception' as MemoType, createdAt: '2026-01-15T10:00:00.000Z' }]
     }
+
     const leeJihyun = customers.find((c) => c.phone === '010-3333-4444')
     if (leeJihyun) {
-      leeJihyun.grade = 'vip'
       leeJihyun.tags = ['코성형', '리프팅', 'VIP', '고액시술']
       leeJihyun.memos = [{ id: 'MEMO-DEMO-004', content: '코성형 + 리프팅 동시 시술 고객. 시술 결과 매우 만족. 추가 시술 관심.', type: 'consultation' as MemoType, createdAt: '2026-01-20T14:00:00.000Z' }]
     }
 
-    const goldPhones = ['010-2222-3333', '010-5555-6666', '010-7777-8888', '010-1234-1111']
-    const goldTags = [['코성형', '경과좋음'], ['리프팅', '정기방문'], ['가슴성형', '상담완료'], ['안면윤곽', '수술예정']]
-    goldPhones.forEach((phone, i) => {
+    const tagAssignments: Array<[string, string[]]> = [
+      ['010-2222-3333', ['코성형', '경과좋음']],
+      ['010-5555-6666', ['리프팅', '정기방문']],
+      ['010-7777-8888', ['가슴성형', '상담완료']],
+      ['010-1234-1111', ['안면윤곽', '수술예정']],
+      ['010-4444-5555', ['피부시술']],
+      ['010-6666-7777', ['쁘띠성형', '보톡스']],
+      ['010-8888-9999', ['눈성형']],
+      ['010-2345-2222', ['지방흡입', '상담중']],
+      ['010-3456-3333', ['피부시술', '레이저']],
+      ['010-4567-4444', ['코성형', '재방문']],
+      ['010-6789-6666', ['눈성형', '만족고객']],
+      ['010-7890-7777', ['리프팅']],
+      ['010-8901-8888', ['안면윤곽']],
+      ['010-9012-9999', ['가슴성형', '상담중']],
+      ['010-1122-3344', ['피부시술', '정기관리']],
+    ]
+    for (const [phone, tags] of tagAssignments) {
       const c = customers.find((cst) => cst.phone === phone)
-      if (c) { c.grade = 'gold'; c.tags = goldTags[i] }
-    })
-
-    const silverPhones = ['010-4444-5555', '010-6666-7777', '010-8888-9999', '010-2345-2222', '010-3456-3333']
-    const silverTags = [['피부시술'], ['쁘띠성형', '보톡스'], ['눈성형'], ['지방흡입', '상담중'], ['피부시술', '레이저']]
-    silverPhones.forEach((phone, i) => {
-      const c = customers.find((cst) => cst.phone === phone)
-      if (c) { c.grade = 'silver'; c.tags = silverTags[i] }
-    })
+      if (c) c.tags = tags
+    }
 
     saveCustomers(customers)
 

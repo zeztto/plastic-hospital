@@ -247,7 +247,7 @@ function RecordsTab({
   const { createRecord } = useEMR()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({
-    date: '2026-02-03',
+    date: new Date().toISOString().split('T')[0],
     doctorName: '김뷰티',
     chiefComplaint: '',
     diagnosis: '',
@@ -263,7 +263,7 @@ function RecordsTab({
 
   const resetForm = () =>
     setForm({
-      date: '2026-02-03',
+      date: new Date().toISOString().split('T')[0],
       doctorName: '김뷰티',
       chiefComplaint: '',
       diagnosis: '',
@@ -460,7 +460,7 @@ function ProceduresTab({
   const { createProcedure } = useEMR()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({
-    date: '2026-02-03',
+    date: new Date().toISOString().split('T')[0],
     procedureName: '',
     doctor: '김뷰티',
     anesthesiaType: '',
@@ -473,7 +473,7 @@ function ProceduresTab({
 
   const resetForm = () =>
     setForm({
-      date: '2026-02-03',
+      date: new Date().toISOString().split('T')[0],
       procedureName: '',
       doctor: '김뷰티',
       anesthesiaType: '',
@@ -651,14 +651,14 @@ function PrescriptionsTab({
   const [open, setOpen] = useState(false)
   const emptyMed: Medication = { name: '', dosage: '', frequency: '', duration: '', instructions: '' }
   const [form, setForm] = useState({
-    date: '2026-02-03',
+    date: new Date().toISOString().split('T')[0],
     doctorName: '김뷰티',
     notes: '',
   })
   const [meds, setMeds] = useState<Medication[]>([{ ...emptyMed }])
 
   const resetForm = () => {
-    setForm({ date: '2026-02-03', doctorName: '김뷰티', notes: '' })
+    setForm({ date: new Date().toISOString().split('T')[0], doctorName: '김뷰티', notes: '' })
     setMeds([{ ...emptyMed }])
   }
 
