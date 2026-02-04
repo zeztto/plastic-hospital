@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,16 +17,10 @@ import {
   UserPlus,
   TrendingUp,
   AlertTriangle,
-  Loader2,
 } from 'lucide-react'
 
 export function EMRDashboard() {
   const { patients, stats } = useEMR()
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    setIsLoading(false)
-  }, [patients])
 
   const allRecords = useMemo(() => {
     return patients
@@ -70,14 +64,6 @@ export function EMRDashboard() {
   const recentPrescriptions = allPrescriptions.slice(0, 3)
 
   const patientsWithAllergies = patients.filter((p) => p.allergies.length > 0)
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-8">
