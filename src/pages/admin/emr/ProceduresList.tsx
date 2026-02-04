@@ -22,6 +22,19 @@ const PAGE_SIZE = 10
 
 type SortKey = 'date' | 'patientName' | 'procedureName' | 'doctor' | 'status'
 
+type SortIconProps = {
+  column: SortKey
+  activeKey: SortKey
+  direction: 'asc' | 'desc'
+}
+
+function SortIcon({ column, activeKey, direction }: SortIconProps) {
+  if (activeKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />
+  return direction === 'asc'
+    ? <ArrowUp className="w-3 h-3 ml-1" />
+    : <ArrowDown className="w-3 h-3 ml-1" />
+}
+
 const statusFilters: Array<{ value: ProcedureStatus | 'all'; label: string }> = [
   { value: 'all', label: '전체' },
   { value: 'scheduled', label: '예정' },
@@ -93,11 +106,6 @@ export function ProceduresList() {
     setCurrentPage(1)
   }
 
-  const SortIcon = ({ column }: { column: SortKey }) => {
-    if (sortKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />
-    return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />
-  }
-
   return (
     <div className="space-y-6">
       <div>
@@ -164,21 +172,21 @@ export function ProceduresList() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('date')}>
-                        <span className="flex items-center">시술일<SortIcon column="date" /></span>
+                        <span className="flex items-center">시술일<SortIcon column="date" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('patientName')}>
-                        <span className="flex items-center">환자명<SortIcon column="patientName" /></span>
+                        <span className="flex items-center">환자명<SortIcon column="patientName" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead>차트번호</TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('procedureName')}>
-                        <span className="flex items-center">시술명<SortIcon column="procedureName" /></span>
+                        <span className="flex items-center">시술명<SortIcon column="procedureName" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('doctor')}>
-                        <span className="flex items-center">담당의<SortIcon column="doctor" /></span>
+                        <span className="flex items-center">담당의<SortIcon column="doctor" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead>마취</TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('status')}>
-                        <span className="flex items-center">상태<SortIcon column="status" /></span>
+                        <span className="flex items-center">상태<SortIcon column="status" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>

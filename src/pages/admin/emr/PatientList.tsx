@@ -20,6 +20,19 @@ const PAGE_SIZE = 10
 
 type SortKey = 'chartNumber' | 'name' | 'birthDate' | 'gender' | 'bloodType' | 'registeredAt'
 
+type SortIconProps = {
+  column: SortKey
+  activeKey: SortKey
+  direction: 'asc' | 'desc'
+}
+
+function SortIcon({ column, activeKey, direction }: SortIconProps) {
+  if (activeKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />
+  return direction === 'asc'
+    ? <ArrowUp className="w-3 h-3 ml-1" />
+    : <ArrowDown className="w-3 h-3 ml-1" />
+}
+
 export function PatientList() {
   const { patients } = useEMR()
   const navigate = useNavigate()
@@ -66,11 +79,6 @@ export function PatientList() {
   const handleSearchChange = (v: string) => {
     setSearch(v)
     setCurrentPage(1)
-  }
-
-  const SortIcon = ({ column }: { column: SortKey }) => {
-    if (sortKey !== column) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-40" />
-    return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />
   }
 
   return (
@@ -125,24 +133,24 @@ export function PatientList() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[100px] cursor-pointer select-none" onClick={() => handleSort('chartNumber')}>
-                        <span className="flex items-center">차트번호<SortIcon column="chartNumber" /></span>
+                        <span className="flex items-center">차트번호<SortIcon column="chartNumber" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('name')}>
-                        <span className="flex items-center">이름<SortIcon column="name" /></span>
+                        <span className="flex items-center">이름<SortIcon column="name" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('birthDate')}>
-                        <span className="flex items-center">생년월일<SortIcon column="birthDate" /></span>
+                        <span className="flex items-center">생년월일<SortIcon column="birthDate" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('gender')}>
-                        <span className="flex items-center">성별<SortIcon column="gender" /></span>
+                        <span className="flex items-center">성별<SortIcon column="gender" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('bloodType')}>
-                        <span className="flex items-center">혈액형<SortIcon column="bloodType" /></span>
+                        <span className="flex items-center">혈액형<SortIcon column="bloodType" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                       <TableHead>연락처</TableHead>
                       <TableHead>알레르기</TableHead>
                       <TableHead className="cursor-pointer select-none" onClick={() => handleSort('registeredAt')}>
-                        <span className="flex items-center">등록일<SortIcon column="registeredAt" /></span>
+                        <span className="flex items-center">등록일<SortIcon column="registeredAt" activeKey={sortKey} direction={sortDir} /></span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
