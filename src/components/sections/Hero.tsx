@@ -36,17 +36,17 @@ export function Hero() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImages.main})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-2xl">
-          <p className="text-white/80 font-medium mb-4 text-sm tracking-widest uppercase animate-fade-in-up opacity-0 animation-delay-100">
+          <p className="text-white/90 font-medium mb-4 text-sm tracking-widest uppercase animate-fade-in-up opacity-0 animation-delay-100">
             강남 프리미엄 성형외과
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in-up opacity-0 animation-delay-200">
             자연스러운 아름다움을<br />디자인합니다
           </h1>
-          <p className="text-lg md:text-xl text-white/80 mb-8 animate-fade-in-up opacity-0 animation-delay-300">
+          <p className="text-lg md:text-xl text-white/90 mb-8 animate-fade-in-up opacity-0 animation-delay-300">
             22년 경력의 성형외과 전문의가<br className="md:hidden" />
             당신만의 아름다움을 찾아드립니다
           </p>
@@ -62,7 +62,7 @@ export function Hero() {
               size="lg" 
               variant="outline"
               onClick={scrollToServices}
-              className="text-lg px-8 py-6 border-white/40 text-white hover:bg-white/10 hover:text-white"
+              className="text-lg px-8 py-6 border-white/60 bg-white/10 text-white hover:bg-white/20 hover:text-white"
             >
               시술 둘러보기
             </Button>
@@ -84,7 +84,7 @@ export function Hero() {
               style={{ transitionDelay: `${index * 150}ms` }}
             >
               <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
-              <p className="text-sm text-white/60 mt-1">{stat.label}</p>
+              <p className="text-sm text-white/70 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -92,7 +92,7 @@ export function Hero() {
 
       <button
         onClick={scrollToServices}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/60 hover:text-white transition-colors"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/70 hover:text-white transition-colors"
       >
         <ChevronDown className="w-8 h-8" />
       </button>

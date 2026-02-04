@@ -63,8 +63,8 @@ export function Header() {
                 onClick={(e) => { e.preventDefault(); scrollToSection(item.href) }}
                 className={`text-sm font-medium transition-colors duration-300 ${
                   scrolled 
-                    ? 'text-muted-foreground hover:text-primary' 
-                    : 'text-white/80 hover:text-white'
+                    ? 'text-foreground/70 hover:text-primary' 
+                    : 'text-white/90 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -76,7 +76,7 @@ export function Header() {
             <a 
               href={`tel:${clinicInfo.phone}`}
               className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                scrolled ? 'text-muted-foreground' : 'text-white/80'
+                scrolled ? 'text-foreground/70' : 'text-white/90'
               }`}
             >
               <Phone className="w-4 h-4" />
