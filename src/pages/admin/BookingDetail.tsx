@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -52,17 +52,10 @@ export function BookingDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { getById, updateStatus, updateMemo, updateJourneyStage, deleteBooking } = useBookings()
-  const [memo, setMemo] = useState('')
+  const booking = id ? getById(id) : undefined
+  const [memo, setMemo] = useState(() => booking?.memo ?? '')
   const [memoSaved, setMemoSaved] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-
-  const booking = id ? getById(id) : undefined
-
-  useEffect(() => {
-    if (booking) {
-      setMemo(booking.memo)
-    }
-  }, [booking])
 
   if (!booking) {
     return (
