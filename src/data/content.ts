@@ -55,7 +55,7 @@ export const doctors = [
     name: '김태호',
     title: '대표원장',
     specialty: '눈·코성형 전문',
-    image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=500&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1632242219461-97228a564923?w=400&h=500&fit=crop&crop=face',
     careers: [
       '서울대학교 의과대학 졸업',
       '서울아산병원 성형외과 전공의 수료',
@@ -71,7 +71,7 @@ export const doctors = [
     name: '이서연',
     title: '원장',
     specialty: '안면윤곽·리프팅 전문',
-    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=500&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1642975967602-653d378f3b5b?w=400&h=500&fit=crop&crop=face',
     careers: [
       '연세대학교 의과대학 졸업',
       '세브란스병원 성형외과 전공의 수료',
@@ -85,7 +85,7 @@ export const doctors = [
     name: '박준혁',
     title: '원장',
     specialty: '가슴·체형성형 전문',
-    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=500&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1606619788433-2ba22e49d498?w=400&h=500&fit=crop&crop=face',
     careers: [
       '고려대학교 의과대학 졸업',
       '삼성서울병원 성형외과 전공의 수료',
@@ -99,7 +99,7 @@ export const doctors = [
     name: '최민지',
     title: '원장',
     specialty: '피부·쁘띠성형 전문',
-    image: 'https://images.unsplash.com/photo-1594824476967-48c8b964f137?w=400&h=500&fit=crop&crop=face',
+    image: 'https://images.unsplash.com/photo-1645066928295-2506defde470?w=400&h=500&fit=crop&crop=face',
     careers: [
       '이화여자대학교 의과대학 졸업',
       '서울대학교병원 피부과 전공의 수료',
@@ -261,24 +261,24 @@ export const heroImages = {
 export const sectionImages = {
   beforeAfter: {
     eye: [
-      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1635353692890-80a6b95add47?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1634469875582-a0885fc2f589?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1663488082356-45428fb8fdb5?w=400&h=300&fit=crop&crop=faces',
     ],
     nose: [
-      'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1680669158867-cc840299ec33?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1680669116394-13028a91533f?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1635353866477-f77a828b431a?w=400&h=300&fit=crop&crop=faces',
     ],
     contour: [
-      'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1505944270255-72b8c68c6a70?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1663595214358-9a936bba6e6a?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1664346732255-f815c891306c?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1620853724625-4715441de25d?w=400&h=300&fit=crop&crop=faces',
     ],
     lifting: [
-      'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?w=400&h=300&fit=crop',
-      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+      'https://images.unsplash.com/photo-1619817278902-42bd23925bf6?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1633177188754-980c2a6b6266?w=400&h=300&fit=crop&crop=faces',
+      'https://images.unsplash.com/photo-1609154799087-7b665c57eef9?w=400&h=300&fit=crop&crop=faces',
     ],
   },
   location: 'https://images.unsplash.com/photo-1583396082374-14e87b006b63?w=800&h=600&fit=crop',
