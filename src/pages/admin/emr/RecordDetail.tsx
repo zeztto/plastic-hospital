@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -28,7 +28,6 @@ import {
 import { toast } from 'sonner'
 import { useEMR } from '@/contexts/EMRContext'
 import { GENDER_LABELS } from '@/types/emr'
-import type { MedicalRecord, Patient } from '@/types/emr'
 import {
   ArrowLeft,
   Stethoscope,
@@ -38,7 +37,6 @@ import {
   Trash2,
   Calendar,
   Pencil,
-  Loader2,
 } from 'lucide-react'
 
 export function RecordDetail() {
@@ -46,10 +44,9 @@ export function RecordDetail() {
   const navigate = useNavigate()
   const { getRecordById, getPatient, updateRecord, deleteRecord } = useEMR()
 
-  const [record, setRecord] = useState<MedicalRecord | undefined>()
-  const [patient, setPatient] = useState<Patient | undefined>()
+  const record = id ? getRecordById(id) : undefined
+  const patient = record ? getPatient(record.patientId) : undefined
   const [editOpen, setEditOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [form, setForm] = useState({
     date: '',
     doctorName: '',
@@ -64,26 +61,6 @@ export function RecordDetail() {
     treatmentPlan: '',
     notes: '',
   })
-
-  const loadData = () => {
-    if (!id) return
-    const r = getRecordById(id)
-    setRecord(r)
-    if (r) setPatient(getPatient(r.patientId))
-  }
-
-  useEffect(() => {
-    loadData()
-    setIsLoading(false)
-  }, [id, getRecordById, getPatient])
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    )
-  }
 
   if (!record) {
     return (
@@ -135,7 +112,6 @@ export function RecordDetail() {
     })
     setEditOpen(false)
     toast.success('진료 기록이 수정되었습니다.')
-    loadData()
   }
 
   const handleDelete = () => {

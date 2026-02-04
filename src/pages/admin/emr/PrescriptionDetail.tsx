@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -36,41 +36,20 @@ import {
 import { toast } from 'sonner'
 import { useEMR } from '@/contexts/EMRContext'
 import { GENDER_LABELS } from '@/types/emr'
-import type { Prescription, Patient, Medication } from '@/types/emr'
-import { ArrowLeft, Pill, User, Trash2, AlertTriangle, Pencil, Plus, Loader2 } from 'lucide-react'
+import type { Medication } from '@/types/emr'
+import { ArrowLeft, Pill, User, Trash2, AlertTriangle, Pencil, Plus } from 'lucide-react'
 
 export function PrescriptionDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { getPrescriptionById, getPatient, updatePrescription, deletePrescription } = useEMR()
 
-  const [prescription, setPrescription] = useState<Prescription | undefined>()
-  const [patient, setPatient] = useState<Patient | undefined>()
+  const prescription = id ? getPrescriptionById(id) : undefined
+  const patient = prescription ? getPatient(prescription.patientId) : undefined
   const [editOpen, setEditOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const emptyMed: Medication = { name: '', dosage: '', frequency: '', duration: '', instructions: '' }
   const [editForm, setEditForm] = useState({ date: '', doctorName: '', notes: '' })
   const [editMeds, setEditMeds] = useState<Medication[]>([{ ...emptyMed }])
-
-  const loadData = () => {
-    if (!id) return
-    const rx = getPrescriptionById(id)
-    setPrescription(rx)
-    if (rx) setPatient(getPatient(rx.patientId))
-  }
-
-  useEffect(() => {
-    loadData()
-    setIsLoading(false)
-  }, [id, getPrescriptionById, getPatient])
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    )
-  }
 
   if (!prescription) {
     return (
@@ -109,7 +88,6 @@ export function PrescriptionDetail() {
     })
     setEditOpen(false)
     toast.success('처방전이 수정되었습니다.')
-    loadData()
   }
 
   const handleDelete = () => {

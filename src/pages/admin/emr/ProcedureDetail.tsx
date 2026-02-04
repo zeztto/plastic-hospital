@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -39,7 +39,7 @@ import {
   GENDER_LABELS,
   ANESTHESIA_TYPES,
 } from '@/types/emr'
-import type { ProcedureRecord, Patient, ProcedureStatus } from '@/types/emr'
+import type { ProcedureStatus } from '@/types/emr'
 import {
   ArrowLeft,
   Scissors,
@@ -51,7 +51,6 @@ import {
   XCircle,
   AlertCircle,
   Pencil,
-  Loader2,
 } from 'lucide-react'
 
 export function ProcedureDetail() {
@@ -59,10 +58,9 @@ export function ProcedureDetail() {
   const navigate = useNavigate()
   const { getProcedureById, getPatient, updateProcedure, updateProcedureStatus, deleteProcedure } = useEMR()
 
-  const [procedure, setProcedure] = useState<ProcedureRecord | undefined>()
-  const [patient, setPatient] = useState<Patient | undefined>()
+  const procedure = id ? getProcedureById(id) : undefined
+  const patient = procedure ? getPatient(procedure.patientId) : undefined
   const [editOpen, setEditOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [form, setForm] = useState({
     date: '',
     procedureName: '',
@@ -74,26 +72,6 @@ export function ProcedureDetail() {
     postOpInstructions: '',
     status: 'scheduled' as ProcedureStatus,
   })
-
-  const loadData = () => {
-    if (!id) return
-    const p = getProcedureById(id)
-    setProcedure(p)
-    if (p) setPatient(getPatient(p.patientId))
-  }
-
-  useEffect(() => {
-    loadData()
-    setIsLoading(false)
-  }, [id])
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    )
-  }
 
   if (!procedure) {
     return (
@@ -137,13 +115,11 @@ export function ProcedureDetail() {
     })
     setEditOpen(false)
     toast.success('시술 기록이 수정되었습니다.')
-    loadData()
   }
 
   const handleStatusChange = (status: ProcedureStatus) => {
     updateProcedureStatus(procedure.id, status)
     toast.success('시술 상태가 변경되었습니다.')
-    loadData()
   }
 
   const handleDelete = () => {
