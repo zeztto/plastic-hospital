@@ -48,9 +48,7 @@ export function Header() {
             onClick={(e) => { e.preventDefault(); scrollToSection('#hero') }}
             className="flex items-center gap-2"
           >
-            <span className={`text-xl lg:text-2xl font-bold transition-colors duration-300 ${
-              scrolled ? 'text-primary' : 'text-white'
-            }`}>
+            <span className="text-xl lg:text-2xl font-bold transition-colors duration-300 text-primary">
               {clinicInfo.name}
             </span>
           </a>
@@ -61,11 +59,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => { e.preventDefault(); scrollToSection(item.href) }}
-                className={`text-sm font-medium transition-colors duration-300 ${
-                  scrolled 
-                    ? 'text-foreground/70 hover:text-primary' 
-                    : 'text-white/90 hover:text-white'
-                }`}
+                className="text-sm font-medium transition-colors duration-300 text-foreground/70 hover:text-primary"
               >
                 {item.label}
               </a>
@@ -75,9 +69,7 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-4">
             <a 
               href={`tel:${clinicInfo.phone}`}
-              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                scrolled ? 'text-foreground/70' : 'text-white/90'
-              }`}
+              className="flex items-center gap-2 text-sm transition-colors duration-300 text-foreground/70"
             >
               <Phone className="w-4 h-4" />
               {clinicInfo.phone}
@@ -92,7 +84,7 @@ export function Header() {
 
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon" className={scrolled ? '' : 'text-white hover:bg-white/10'}>
+              <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted/70">
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
