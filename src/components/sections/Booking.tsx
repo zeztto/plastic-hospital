@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,7 +35,7 @@ const benefits = [
 export function Booking() {
   const { create } = useBookings()
   const { ref, isVisible } = useScrollReveal()
-  const [utmParams, setUtmParams] = useState({ source: '', medium: '', campaign: '' })
+  const [utmParams] = useState(() => getUtmParams())
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -47,10 +47,6 @@ export function Booking() {
     agreed: false,
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
-
-  useEffect(() => {
-    setUtmParams(getUtmParams())
-  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
