@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
 import type {
   Customer,
   CustomerGrade,
@@ -28,8 +28,12 @@ interface CustomerContextValue {
 const CustomerContext = createContext<CustomerContextValue | null>(null)
 
 export function CustomerProvider({ children }: { children: ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [followUps, setFollowUps] = useState<FollowUpTask[]>([])
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    const bookings = bookingStorage.getAll()
+    customerStorage.seedDemoData(bookings)
+    return customerStorage.getAll()
+  })
+  const [followUps, setFollowUps] = useState<FollowUpTask[]>(() => customerStorage.getFollowUps())
 
   const pendingFollowUps = useMemo(
     () => followUps.filter((f) => f.status === 'pending'),
@@ -40,12 +44,6 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     setCustomers(customerStorage.getAll())
     setFollowUps(customerStorage.getFollowUps())
   }, [])
-
-  useEffect(() => {
-    const bookings = bookingStorage.getAll()
-    customerStorage.seedDemoData(bookings)
-    refresh()
-  }, [refresh])
 
   const getCustomerById = useCallback(
     (id: string) => customerStorage.getById(id),

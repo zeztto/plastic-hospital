@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
 import type { Patient, MedicalRecord, ProcedureRecord, Prescription, ProcedureStatus } from '@/types/emr'
 import { emrStorage } from '@/services/emrStorage'
 
@@ -37,18 +37,16 @@ interface EMRContextValue {
 const EMRContext = createContext<EMRContextValue | null>(null)
 
 export function EMRProvider({ children }: { children: ReactNode }) {
-  const [patients, setPatients] = useState<Patient[]>([])
-  const [stats, setStats] = useState(emrStorage.getStats())
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    emrStorage.seedDemoData()
+    return emrStorage.getPatients()
+  })
+  const [stats, setStats] = useState(() => emrStorage.getStats())
 
   const refresh = useCallback(() => {
     setPatients(emrStorage.getPatients())
     setStats(emrStorage.getStats())
   }, [])
-
-  useEffect(() => {
-    emrStorage.seedDemoData()
-    refresh()
-  }, [refresh])
 
   const getPatient = useCallback((id: string) => emrStorage.getPatientById(id), [])
 

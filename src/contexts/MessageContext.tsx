@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
 import type {
   MessageTemplate,
   TemplateCategory,
@@ -50,10 +50,13 @@ interface MessageContextValue {
 const MessageContext = createContext<MessageContextValue | null>(null)
 
 export function MessageProvider({ children }: { children: ReactNode }) {
-  const [templates, setTemplates] = useState<MessageTemplate[]>([])
-  const [sendRecords, setSendRecords] = useState<MessageSendRecord[]>([])
-  const [autoSendRules, setAutoSendRules] = useState<AutoSendRule[]>([])
-  const [sendStats, setSendStats] = useState(messageStorage.getSendStats())
+  const [templates, setTemplates] = useState<MessageTemplate[]>(() => {
+    messageStorage.seedDemoData()
+    return messageStorage.getTemplates()
+  })
+  const [sendRecords, setSendRecords] = useState<MessageSendRecord[]>(() => messageStorage.getSendRecords())
+  const [autoSendRules, setAutoSendRules] = useState<AutoSendRule[]>(() => messageStorage.getAutoSendRules())
+  const [sendStats, setSendStats] = useState(() => messageStorage.getSendStats())
 
   const activeTemplates = useMemo(
     () => templates.filter((t) => t.isActive),
@@ -66,11 +69,6 @@ export function MessageProvider({ children }: { children: ReactNode }) {
     setAutoSendRules(messageStorage.getAutoSendRules())
     setSendStats(messageStorage.getSendStats())
   }, [])
-
-  useEffect(() => {
-    messageStorage.seedDemoData()
-    refresh()
-  }, [refresh])
 
   const getTemplateById = useCallback(
     (id: string) => messageStorage.getTemplateById(id),

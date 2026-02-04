@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
 import type { Booking, BookingFormData, BookingStatus, JourneyStage } from '@/types/booking'
 import { bookingStorage } from '@/services/bookingStorage'
 
@@ -18,20 +18,18 @@ interface BookingContextValue {
 const BookingContext = createContext<BookingContextValue | null>(null)
 
 export function BookingProvider({ children }: { children: ReactNode }) {
-  const [bookings, setBookings] = useState<Booking[]>([])
-  const [stats, setStats] = useState(bookingStorage.getStats())
-  const [marketingStats, setMarketingStats] = useState(bookingStorage.getMarketingStats())
+  const [bookings, setBookings] = useState<Booking[]>(() => {
+    bookingStorage.seedDemoData()
+    return bookingStorage.getAll()
+  })
+  const [stats, setStats] = useState(() => bookingStorage.getStats())
+  const [marketingStats, setMarketingStats] = useState(() => bookingStorage.getMarketingStats())
 
   const refresh = useCallback(() => {
     setBookings(bookingStorage.getAll())
     setStats(bookingStorage.getStats())
     setMarketingStats(bookingStorage.getMarketingStats())
   }, [])
-
-  useEffect(() => {
-    bookingStorage.seedDemoData()
-    refresh()
-  }, [refresh])
 
   const create = useCallback(
     (data: BookingFormData) => {
